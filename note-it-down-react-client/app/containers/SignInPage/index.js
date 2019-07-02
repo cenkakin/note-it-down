@@ -7,7 +7,6 @@ import PropTypes from 'prop-types';
 import { Helmet } from 'react-helmet';
 import { connect } from 'react-redux';
 import { compose } from 'redux';
-import makeStyles from '@material-ui/core/styles/makeStyles';
 import Container from '@material-ui/core/Container';
 import Typography from '@material-ui/core/Typography';
 import TextField from '@material-ui/core/TextField';
@@ -17,26 +16,29 @@ import Grid from '@material-ui/core/Grid';
 import Link from '@material-ui/core/Link';
 import LockOutlinedIcon from '@material-ui/icons/LockOutlined';
 import { FormattedMessage } from 'react-intl';
-import Button from '../../components/Button';
 import messages from './messages';
 import Paper from './Paper';
 import StyledAvatar from './StyledAvatar';
 import Form from '../../components/Form';
+import StyledButton from '../../components/Button/StyledButton';
+import { loadRepos } from '../App/actions';
+import { createStructuredSelector } from 'reselect';
+import { makeSelectEmail, makeSelectPassword } from './selectors';
+import { changeEmail, changePassword } from './actions';
+import { useInjectReducer } from '../../../internals/templates/utils/injectReducer';
+import { useInjectSaga } from '../../utils/injectSaga';
+import reducer from './reducer';
 
 const key = 'signin';
 
-const useStyles = makeStyles(theme => ({
-  form: {
-    width: '100%', // Fix IE 11 issue.
-    marginTop: theme.spacing(1),
-  },
-  submit: {
-    margin: theme.spacing(3, 0, 2),
-  },
-}));
-
-export function SignInPage({ username, onSubmitForm, onChangeUsername }) {
-  const classes = useStyles();
+export function SignInPage({
+  email,
+  password,
+  onSubmitForm,
+  onChangeEmail,
+  onChangePassword,
+}) {
+  useInjectReducer({ key, reducer });
 
   return (
     <article>
@@ -46,13 +48,13 @@ export function SignInPage({ username, onSubmitForm, onChangeUsername }) {
       </Helmet>
       <Container component="main" maxWidth="xs">
         <Paper>
-          <StyledAvatar >
+          <StyledAvatar>
             <LockOutlinedIcon/>
           </StyledAvatar>
           <Typography component="h1" variant="h5">
             <FormattedMessage {...messages.header} />
           </Typography>
-          <Form noValidate>
+          <Form onSubmit={onSubmitForm}>
             <TextField
               variant="outlined"
               margin="normal"
@@ -63,6 +65,8 @@ export function SignInPage({ username, onSubmitForm, onChangeUsername }) {
               name="email"
               autoComplete="email"
               autoFocus
+              onChange={onChangeEmail}
+              value={email}
             />
             <TextField
               variant="outlined"
@@ -74,20 +78,21 @@ export function SignInPage({ username, onSubmitForm, onChangeUsername }) {
               type="password"
               id="password"
               autoComplete="current-password"
+              onChange={onChangePassword}
+              value={password}
             />
             <FormControlLabel
               control={<Checkbox value="remember" color="primary"/>}
               label=<FormattedMessage {...messages.rememberMe} />
             />
-            <Button
+            <StyledButton
               type="submit"
               fullWidth
               variant="contained"
               color="primary"
-              className={classes.submit}
             >
               <FormattedMessage {...messages.signInButton} />
-            </Button>
+            </StyledButton>
             <Grid container>
               <Grid item xs>
                 {/* eslint-disable-next-line jsx-a11y/anchor-is-valid */}
@@ -109,12 +114,33 @@ export function SignInPage({ username, onSubmitForm, onChangeUsername }) {
 }
 
 SignInPage.propTypes = {
+  email: PropTypes.string,
+  password: PropTypes.string,
+  onChangeEmail: PropTypes.func,
+  onChangePassword: PropTypes.func,
   onSubmitForm: PropTypes.func,
-  username: PropTypes.string,
-  onChangeUsername: PropTypes.func,
 };
 
-const withConnect = connect();
+export function mapDispatchToProps(dispatch) {
+  return {
+    onChangeEmail: evt => dispatch(changeEmail(evt.target.value)),
+    onChangePassword: evt => dispatch(changePassword(evt.target.value)),
+    onSubmitForm: evt => {
+      if (evt !== undefined && evt.preventDefault) evt.preventDefault();
+      dispatch(loadRepos());
+    },
+  };
+}
+
+const mapStateToProps = createStructuredSelector({
+  email: makeSelectEmail(),
+  password: makeSelectPassword(),
+});
+
+const withConnect = connect(
+  mapStateToProps,
+  mapDispatchToProps,
+);
 
 export default compose(
   withConnect,
