@@ -20,7 +20,7 @@ public class JwtTokenProvider {
 
     public String generateToken(Authentication authentication) {
 
-        Long now = System.currentTimeMillis();
+        long now = System.currentTimeMillis();
         return Jwts.builder()
                 .setSubject(authentication.getName())
                 .claim("authorities", authentication.getAuthorities().stream()
@@ -29,12 +29,5 @@ public class JwtTokenProvider {
                 .setExpiration(new Date(now + jwtProperties.getExpiration() * 1000))  // in milliseconds
                 .signWith(SignatureAlgorithm.HS512, jwtProperties.getSecret().getBytes())
                 .compact();
-    }
-
-    public Claims getClaimsFromJWT(String token) {
-        return Jwts.parser()
-                .setSigningKey(jwtProperties.getSecret().getBytes())
-                .parseClaimsJws(token)
-                .getBody();
     }
 }

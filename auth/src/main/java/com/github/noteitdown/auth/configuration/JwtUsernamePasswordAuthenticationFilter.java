@@ -1,15 +1,13 @@
 package com.github.noteitdown.auth.configuration;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import io.jsonwebtoken.Jwts;
-import io.jsonwebtoken.SignatureAlgorithm;
-import lombok.Getter;
-import lombok.Setter;
+import com.github.noteitdown.auth.request.SigninRequest;
+import com.github.noteitdown.auth.security.JwtTokenProvider;
+import com.github.noteitdown.common.security.JwtProperties;
 import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.InsufficientAuthenticationException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.AuthenticationException;
-import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.web.authentication.AbstractAuthenticationProcessingFilter;
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 
@@ -17,10 +15,7 @@ import javax.servlet.FilterChain;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
-import java.time.Instant;
 import java.util.Collections;
-import java.util.Date;
-import java.util.stream.Collectors;
 
 /**
  * Authenticate the request to url /login by POST with json body '{ username, password }'.
@@ -30,61 +25,37 @@ import java.util.stream.Collectors;
  */
 public class JwtUsernamePasswordAuthenticationFilter extends AbstractAuthenticationProcessingFilter {
 
-    private final JwtAuthenticationConfig config;
-    private final ObjectMapper mapper;
+    private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
 
-    public JwtUsernamePasswordAuthenticationFilter(JwtAuthenticationConfig config, AuthenticationManager authManager) {
-        super(new AntPathRequestMatcher(config.getUrl(), "POST"));
-        setAuthenticationManager(authManager);
-        this.config = config;
-        this.mapper = new ObjectMapper();
+    private final JwtTokenProvider jwtTokenProvider;
+    private final JwtProperties jwtProperties;
+
+    public JwtUsernamePasswordAuthenticationFilter(JwtProperties jwtProperties,
+                                                   JwtTokenProvider jwtTokenProvider,
+                                                   AuthenticationManager authenticationManager) {
+        super(new AntPathRequestMatcher(jwtProperties.getUri(), "POST"));
+        this.jwtTokenProvider = jwtTokenProvider;
+        this.jwtProperties = jwtProperties;
+        super.setAuthenticationManager(authenticationManager);
     }
 
     @Override
-    public Authentication attemptAuthentication(HttpServletRequest req, HttpServletResponse rsp)
-            throws AuthenticationException, IOException {
-        User u = mapper.readValue(req.getInputStream(), User.class);
+    public Authentication attemptAuthentication(HttpServletRequest req, HttpServletResponse rsp) {
+        SigninRequest request;
+        try {
+            request = OBJECT_MAPPER.readValue(req.getInputStream(), SigninRequest.class);
+        } catch (IOException e) {
+            throw new InsufficientAuthenticationException("Request couldn't be parsed!");
+        }
         return getAuthenticationManager().authenticate(new UsernamePasswordAuthenticationToken(
-                u.getUsername(), u.getPassword(), Collections.emptyList()
+                request.getUsername(), request.getPassword(), Collections.emptyList()
         ));
     }
 
     @Override
     protected void successfulAuthentication(HttpServletRequest req, HttpServletResponse rsp, FilterChain chain,
                                             Authentication auth) {
-        Instant now = Instant.now();
-        String token = Jwts.builder()
-                .setSubject(auth.getName())
-                .claim("authorities", auth.getAuthorities().stream()
-                        .map(GrantedAuthority::getAuthority).collect(Collectors.toList()))
-                .setIssuedAt(Date.from(now))
-                .setExpiration(Date.from(now.plusSeconds(config.getExpiration())))
-                .signWith(SignatureAlgorithm.HS256, config.getSecret().getBytes())
-                .compact();
-        rsp.addHeader(config.getHeader(), config.getPrefix() + " " + token);
-    }
-
-    @Getter
-    @Setter
-    private static class User {
-        private String username, password;
-
-		public String getUsername() {
-			return username;
-		}
-
-		public void setUsername(String username) {
-			this.username = username;
-		}
-
-		public String getPassword() {
-			return password;
-		}
-
-		public void setPassword(String password) {
-			this.password = password;
-		}
-        
-        
+        String token = jwtTokenProvider.generateToken(auth);
+        rsp.addHeader(jwtProperties.getHeader(), jwtProperties.getPrefix() + " " + token);
     }
 }

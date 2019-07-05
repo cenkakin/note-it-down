@@ -1,13 +1,10 @@
 package com.github.noteitdown.auth.configuration;
 
+import com.github.noteitdown.auth.security.JwtTokenProvider;
 import com.github.noteitdown.common.security.JwtProperties;
-import org.springframework.beans.factory.annotation.Value;
+import com.github.noteitdown.common.security.JwtTokenAuthenticationFilter;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
-import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Lazy;
 import org.springframework.http.HttpMethod;
-import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.config.BeanIds;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
@@ -29,18 +26,14 @@ public class SecurityCredentialsConfigurer extends WebSecurityConfigurerAdapter 
 
     private final JwtProperties jwtProperties;
 
-    @Value("${security.service.username}")
-    private String serviceUsername;
+    private final JwtTokenProvider jwtTokenProvider;
 
-    @Value("${security.service.password}")
-    private String servicePassword;
-
-
-    public SecurityCredentialsConfigurer(PasswordEncoder passwordEncoder, @Lazy UserDetailsService userDetailsService,
-                                         JwtProperties jwtProperties) {
+    public SecurityCredentialsConfigurer(PasswordEncoder passwordEncoder, UserDetailsService userDetailsService,
+                                         JwtProperties jwtProperties, JwtTokenProvider jwtTokenProvider) {
         this.passwordEncoder = passwordEncoder;
         this.userDetailsService = userDetailsService;
         this.jwtProperties = jwtProperties;
+        this.jwtTokenProvider = jwtTokenProvider;
     }
 
     @Override
@@ -51,7 +44,10 @@ public class SecurityCredentialsConfigurer extends WebSecurityConfigurerAdapter 
                 .and()
                 .exceptionHandling().authenticationEntryPoint((req, rsp, e) -> rsp.sendError(HttpServletResponse.SC_UNAUTHORIZED))
                 .and()
-                .addFilterBefore(new JwtTokenAuthenticationFilter(serviceUsername, jwtConfig, tokenProvider, userService), UsernamePasswordAuthenticationFilter.class)
+                .addFilterBefore(new JwtTokenAuthenticationFilter(jwtProperties), UsernamePasswordAuthenticationFilter.class)
+                .addFilterBefore(new JwtUsernamePasswordAuthenticationFilter(jwtProperties, jwtTokenProvider,
+                                super.authenticationManagerBean()),
+                        UsernamePasswordAuthenticationFilter.class)
                 .authorizeRequests()
                 .antMatchers(HttpMethod.POST, "/signin").permitAll()
                 .antMatchers(HttpMethod.POST, "/users").anonymous()
@@ -66,11 +62,4 @@ public class SecurityCredentialsConfigurer extends WebSecurityConfigurerAdapter 
         // Configure DB authentication provider for user accounts
         auth.userDetailsService(userDetailsService).passwordEncoder(passwordEncoder);
     }
-
-    @Bean(BeanIds.AUTHENTICATION_MANAGER)
-    @Override
-    public AuthenticationManager authenticationManagerBean() throws Exception {
-        return super.authenticationManagerBean();
-    }
-
 }

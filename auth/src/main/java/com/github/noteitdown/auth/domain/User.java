@@ -4,15 +4,16 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.annotation.LastModifiedDate;
+import org.springframework.data.mongodb.core.index.Indexed;
 import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.Size;
+import java.time.Instant;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.Date;
 
 /**
  * Created by cenkakin
@@ -25,6 +26,7 @@ public class User implements UserDetails {
 
     @NotBlank
     @Size(max = 100)
+    @Indexed(unique = true)
     private String email;
 
     @NotBlank
@@ -33,10 +35,10 @@ public class User implements UserDetails {
     private String password;
 
     @CreatedDate
-    private Date createdAt;
+    private Instant createdAt;
 
     @LastModifiedDate
-    private Date lastModifiedAt;
+    private Instant lastModifiedAt;
 
     public String getId() {
         return id;
@@ -67,19 +69,19 @@ public class User implements UserDetails {
         this.password = password;
     }
 
-    public Date getCreatedAt() {
+    public Instant getCreatedAt() {
         return createdAt;
     }
 
-    public void setCreatedAt(Date createdAt) {
+    public void setCreatedAt(Instant createdAt) {
         this.createdAt = createdAt;
     }
 
-    public Date getLastModifiedAt() {
+    public Instant getLastModifiedAt() {
         return lastModifiedAt;
     }
 
-    public void setLastModifiedAt(Date lastModifiedAt) {
+    public void setLastModifiedAt(Instant lastModifiedAt) {
         this.lastModifiedAt = lastModifiedAt;
     }
 
@@ -111,5 +113,16 @@ public class User implements UserDetails {
     @Override
     public boolean isEnabled() {
         return true;
+    }
+
+    @Override
+    public String toString() {
+        return "User{" +
+                "id='" + id + '\'' +
+                ", email='" + email + '\'' +
+                ", password='" + password + '\'' +
+                ", createdAt=" + createdAt +
+                ", lastModifiedAt=" + lastModifiedAt +
+                '}';
     }
 }

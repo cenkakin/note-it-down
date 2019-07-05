@@ -25,7 +25,8 @@ public class UserService implements UserDetailsService {
 
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-        return loadByEmail(username).orElse(null);
+        return loadByEmail(username)
+                .orElseThrow(() -> new UsernameNotFoundException("Username not found!"));
     }
 
     private Optional<User> loadByEmail(String email) {

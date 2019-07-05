@@ -1,6 +1,7 @@
 package com.github.noteitdown.gateway.configuration;
 
 import com.github.noteitdown.common.security.JwtProperties;
+import com.github.noteitdown.common.security.JwtTokenAuthenticationFilter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.http.HttpMethod;

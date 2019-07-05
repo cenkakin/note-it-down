@@ -1,6 +1,5 @@
-package com.github.noteitdown.gateway.configuration;
+package com.github.noteitdown.common.security;
 
-import com.github.noteitdown.common.security.JwtProperties;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
