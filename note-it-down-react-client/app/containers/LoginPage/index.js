@@ -1,60 +1,79 @@
-/*
- * Sign In Page
- *
- */
-import React, { memo } from 'react';
-import PropTypes from 'prop-types';
-import { Helmet } from 'react-helmet';
+import React, { memo, useEffect } from 'react';
 import { connect } from 'react-redux';
-import { compose } from 'redux';
-import Container from '@material-ui/core/Container';
-import Typography from '@material-ui/core/Typography';
-import TextField from '@material-ui/core/TextField';
-import FormControlLabel from '@material-ui/core/FormControlLabel';
-import Checkbox from '@material-ui/core/Checkbox';
+import { createStructuredSelector } from 'reselect';
+import { Helmet } from 'react-helmet';
+import { FormattedMessage } from 'react-intl';
+import PropTypes from 'prop-types';
 import Grid from '@material-ui/core/Grid';
 import Link from '@material-ui/core/Link';
 import LockOutlinedIcon from '@material-ui/icons/LockOutlined';
-import { FormattedMessage } from 'react-intl';
+import FormControlLabel from '@material-ui/core/FormControlLabel';
+import Checkbox from '@material-ui/core/Checkbox';
+import TextField from '@material-ui/core/TextField';
+import { useInjectReducer } from 'utils/injectReducer';
+import { useInjectSaga } from 'utils/injectSaga';
+import { compose } from 'redux';
+import { Redirect } from 'react-router-dom';
+import Container from '@material-ui/core/Container';
+import Typography from '@material-ui/core/Typography';
+import Form from '../../components/Form';
+
+import { makeSelectEmail, makeSelectLoginError, makeSelectPassword } from './selectors';
+import { changeEmail, changePassword, login } from './actions';
 import messages from './messages';
+import { makeSelectLoggedIn } from '../App/selectors';
 import Paper from './Paper';
 import StyledAvatar from './StyledAvatar';
-import Form from '../../components/Form';
 import StyledButton from '../../components/Button/StyledButton';
-import { loadRepos } from '../App/actions';
-import { createStructuredSelector } from 'reselect';
-import { makeSelectEmail, makeSelectPassword } from './selectors';
-import { changeEmail, changePassword } from './actions';
-import { useInjectReducer } from '../../../internals/templates/utils/injectReducer';
-import { useInjectSaga } from '../../utils/injectSaga';
 import reducer from './reducer';
+import saga from './saga';
+import SuccessMessage from '../../components/SuccessMessage';
 
-const key = 'signin';
+const key = 'login';
 
-export function SignInPage({
+export function LoginPage({
   email,
   password,
   onSubmitForm,
   onChangeEmail,
   onChangePassword,
+  loginError,
+  loggedIn,
 }) {
   useInjectReducer({ key, reducer });
+  useInjectSaga({ key, saga });
+
+  useEffect(() => {
+    // When initial state username is not null, submit the form to load repos
+    if (loginError != null && loginError !== '') {
+      // message.error(intl.formatMessage(loginError));
+    }
+  }, [loggedIn]);
+
+  // const { formatMessage } = intl;
+
+  function handleSubmit(e) {
+    e.preventDefault();
+    onSubmitForm();
+  }
 
   return (
     <article>
+      <SuccessMessage isOpen />
       <Helmet>
         <title>Sign In Page</title>
-        <meta name="Sign In Page"/>
+        <meta name="Sign In Page" />
       </Helmet>
       <Container component="main" maxWidth="xs">
+        {loggedIn ? <Redirect to="/" /> : null}
         <Paper>
           <StyledAvatar>
-            <LockOutlinedIcon/>
+            <LockOutlinedIcon />
           </StyledAvatar>
           <Typography component="h1" variant="h5">
             <FormattedMessage {...messages.header} />
           </Typography>
-          <Form onSubmit={onSubmitForm}>
+          <Form onSubmit={handleSubmit}>
             <TextField
               variant="outlined"
               margin="normal"
@@ -82,7 +101,7 @@ export function SignInPage({
               value={password}
             />
             <FormControlLabel
-              control={<Checkbox value="remember" color="primary"/>}
+              control={<Checkbox value="remember" color="primary" />}
               label=<FormattedMessage {...messages.rememberMe} />
             />
             <StyledButton
@@ -91,7 +110,7 @@ export function SignInPage({
               variant="contained"
               color="primary"
             >
-              <FormattedMessage {...messages.signInButton} />
+              <FormattedMessage {...messages.loginButton} />
             </StyledButton>
             <Grid container>
               <Grid item xs>
@@ -113,28 +132,33 @@ export function SignInPage({
   );
 }
 
-SignInPage.propTypes = {
-  email: PropTypes.string,
-  password: PropTypes.string,
+LoginPage.propTypes = {
+  intl: PropTypes.object,
+  form: PropTypes.object,
+  onSubmitForm: PropTypes.func,
   onChangeEmail: PropTypes.func,
   onChangePassword: PropTypes.func,
-  onSubmitForm: PropTypes.func,
+  loginError: PropTypes.any,
+  loggedIn: PropTypes.bool,
+  email: PropTypes.string,
+  password: PropTypes.string,
 };
 
 export function mapDispatchToProps(dispatch) {
   return {
-    onChangeEmail: evt => dispatch(changeEmail(evt.target.value)),
-    onChangePassword: evt => dispatch(changePassword(evt.target.value)),
-    onSubmitForm: evt => {
-      if (evt !== undefined && evt.preventDefault) evt.preventDefault();
-      dispatch(loadRepos());
+    onChangeEmail: e => dispatch(changeEmail(e.target.value)),
+    onChangePassword: e => dispatch(changePassword(e.target.value)),
+    onSubmitForm: () => {
+      dispatch(login());
     },
   };
 }
 
 const mapStateToProps = createStructuredSelector({
+  loggedIn: makeSelectLoggedIn(),
   email: makeSelectEmail(),
   password: makeSelectPassword(),
+  loginError: makeSelectLoginError(),
 });
 
 const withConnect = connect(
@@ -145,4 +169,4 @@ const withConnect = connect(
 export default compose(
   withConnect,
   memo,
-)(SignInPage);
+)(LoginPage);

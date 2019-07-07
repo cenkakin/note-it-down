@@ -1,6 +1,6 @@
 package com.github.noteitdown.auth.request;
 
-public class SigninRequest {
+public class LoginRequest {
 
 	private String username;
 

@@ -1,11 +1,6 @@
-/*
- * HomePage Messages
- *
- * This contains all the text for the HomePage component.
- */
 import { defineMessages } from 'react-intl';
 
-export const scope = 'noteitdown.containers.SignInPage';
+export const scope = 'noteitdown.containers.LoginPage';
 
 export default defineMessages({
   header: {
@@ -24,8 +19,8 @@ export default defineMessages({
     id: `${scope}.remember_me.message`,
     defaultMessage: 'Remember me',
   },
-  signInButton: {
+  loginButton: {
     id: `${scope}.sign_in_button.message`,
-    defaultMessage: 'Sign In',
+    defaultMessage: 'Log In',
   },
 });

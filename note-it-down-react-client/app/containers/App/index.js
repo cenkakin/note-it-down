@@ -11,7 +11,7 @@ import { Helmet } from 'react-helmet';
 import { Route, Switch } from 'react-router-dom';
 
 import HomePage from 'containers/HomePage/Loadable';
-import SignInPage from 'containers/SignInPage/Loadable';
+import LoginPage from 'containers/LoginPage/Loadable';
 import FeaturePage from 'containers/FeaturePage/Loadable';
 import NotFoundPage from 'containers/NotFoundPage/Loadable';
 
@@ -24,10 +24,9 @@ export default function App() {
       >
         <meta name="description" content="A React.js Boilerplate application"/>
       </Helmet>
-      {/*<Header />*/}
       <Switch>
         <Route exact path="/" component={HomePage}/>
-        <Route path="/signin" component={SignInPage}/>
+        <Route path="/login" component={LoginPage}/>
         <Route path="/features" component={FeaturePage}/>
         <Route path="" component={NotFoundPage}/>
       </Switch>

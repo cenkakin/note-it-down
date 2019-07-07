@@ -1,7 +1,8 @@
 package com.github.noteitdown.auth.security;
 
+import com.github.noteitdown.common.security.ExtendedUserDetails;
 import com.github.noteitdown.common.security.JwtProperties;
-import io.jsonwebtoken.Claims;
+import io.jsonwebtoken.JwtBuilder;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import org.springframework.security.core.Authentication;
@@ -19,15 +20,19 @@ public class JwtTokenProvider {
     }
 
     public String generateToken(Authentication authentication) {
-
         long now = System.currentTimeMillis();
-        return Jwts.builder()
+        JwtBuilder jwtBuilder = Jwts.builder()
                 .setSubject(authentication.getName())
                 .claim("authorities", authentication.getAuthorities().stream()
                         .map(GrantedAuthority::getAuthority).collect(Collectors.toList()))
                 .setIssuedAt(new Date(now))
                 .setExpiration(new Date(now + jwtProperties.getExpiration() * 1000))  // in milliseconds
-                .signWith(SignatureAlgorithm.HS512, jwtProperties.getSecret().getBytes())
+                .signWith(SignatureAlgorithm.HS512, jwtProperties.getSecret().getBytes());
+        Object principal = authentication.getPrincipal();
+        if (ExtendedUserDetails.class.isAssignableFrom(principal.getClass())) {
+            jwtBuilder.claim("id", ((ExtendedUserDetails) principal).getId());
+        }
+        return jwtBuilder
                 .compact();
     }
 }

@@ -10,8 +10,11 @@
 import produce from 'immer';
 import { LOAD_REPOS_SUCCESS, LOAD_REPOS, LOAD_REPOS_ERROR } from './constants';
 
+const isAuthenticated = () => !!localStorage.getItem('identity');
+
 // The initial state of the App
 export const initialState = {
+  loggedIn: false,
   loading: false,
   error: false,
   currentUser: false,

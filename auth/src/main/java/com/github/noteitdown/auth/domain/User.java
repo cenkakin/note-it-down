@@ -1,25 +1,28 @@
 package com.github.noteitdown.auth.domain;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.github.noteitdown.auth.request.SignUpRequest;
+import com.github.noteitdown.common.security.ExtendedUserDetails;
+import com.github.noteitdown.common.security.UserRole;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.mongodb.core.index.Indexed;
 import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.userdetails.UserDetails;
 
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.Size;
 import java.time.Instant;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Set;
 
 /**
  * Created by cenkakin
  */
 @Document
-public class User implements UserDetails {
+public class User implements ExtendedUserDetails {
 
     @Id
     private String id;
@@ -34,11 +37,25 @@ public class User implements UserDetails {
     @JsonIgnore
     private String password;
 
+    private Boolean active;
+
+    private Set<UserRole> roles;
+
     @CreatedDate
     private Instant createdAt;
 
     @LastModifiedDate
     private Instant lastModifiedAt;
+
+    private User(String email, String password, Boolean active, Set<UserRole> roles) {
+        this.email = email;
+        this.password = password;
+        this.active = active;
+        this.roles = roles;
+    }
+
+    public User() {
+    }
 
     public String getId() {
         return id;
@@ -85,6 +102,22 @@ public class User implements UserDetails {
         this.lastModifiedAt = lastModifiedAt;
     }
 
+    public Boolean getActive() {
+        return active;
+    }
+
+    public void setActive(Boolean active) {
+        this.active = active;
+    }
+
+    public Set<UserRole> getRoles() {
+        return roles;
+    }
+
+    public void setRoles(Set<UserRole> roles) {
+        this.roles = roles;
+    }
+
     @JsonIgnore
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
@@ -112,7 +145,7 @@ public class User implements UserDetails {
     @JsonIgnore
     @Override
     public boolean isEnabled() {
-        return true;
+        return active;
     }
 
     @Override
@@ -121,8 +154,14 @@ public class User implements UserDetails {
                 "id='" + id + '\'' +
                 ", email='" + email + '\'' +
                 ", password='" + password + '\'' +
+                ", active=" + active +
+                ", roles=" + roles.toString() +
                 ", createdAt=" + createdAt +
                 ", lastModifiedAt=" + lastModifiedAt +
                 '}';
+    }
+
+    public static User fromSignUpRequest(SignUpRequest request) {
+        return new User(request.getEmail(), request.getPassword(), true, Set.of(UserRole.USER));
     }
 }

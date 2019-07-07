@@ -1,6 +1,5 @@
-package com.github.noteitdown.auth.configuration;
+package com.github.noteitdown.auth.security;
 
-import com.github.noteitdown.auth.security.JwtTokenProvider;
 import com.github.noteitdown.common.security.JwtProperties;
 import com.github.noteitdown.common.security.JwtTokenAuthenticationFilter;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
@@ -49,17 +48,13 @@ public class SecurityCredentialsConfigurer extends WebSecurityConfigurerAdapter 
                                 super.authenticationManagerBean()),
                         UsernamePasswordAuthenticationFilter.class)
                 .authorizeRequests()
-                .antMatchers(HttpMethod.POST, "/signin").permitAll()
+                .antMatchers(HttpMethod.POST, "/login").permitAll()
                 .antMatchers(HttpMethod.POST, "/users").anonymous()
                 .anyRequest().authenticated();
     }
 
-    // Spring has UserDetailsService interface, which can be overriden to provide our implementation for fetching user from database (or any other source).
-    // The UserDetailsService object is used by the auth manager to load the user from database.
-    // In addition, we need to define the password encoder also. So, auth manager can compare and verify passwords.
     @Override
     protected void configure(AuthenticationManagerBuilder auth) throws Exception {
-        // Configure DB authentication provider for user accounts
         auth.userDetailsService(userDetailsService).passwordEncoder(passwordEncoder);
     }
 }
