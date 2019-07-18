@@ -1,4 +1,4 @@
-import { CHANGE_EMAIL, CHANGE_PASSWORD, LOGIN } from './constants';
+import { CHANGE_EMAIL, CHANGE_PASSWORD, LOGIN, LOGIN_ERROR } from './constants';
 
 export function changeEmail(email) {
   return {
@@ -11,6 +11,13 @@ export function changePassword(password) {
   return {
     type: CHANGE_PASSWORD,
     password,
+  };
+}
+
+export function errorOnLogin(loginError) {
+  return {
+    type: LOGIN_ERROR,
+    loginError,
   };
 }
 

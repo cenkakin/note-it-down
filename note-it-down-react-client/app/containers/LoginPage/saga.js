@@ -2,8 +2,9 @@ import { call, put, select, takeLatest } from 'redux-saga/effects';
 
 import { doPostRequest } from '../../utils/request';
 import { makeSelectEmail, makeSelectPassword } from './selectors';
+import messages from './messages';
 import { LOGIN } from './constants';
-import { changeEmail, changePassword } from './actions';
+import { changeEmail, changePassword, errorOnLogin } from './actions';
 
 export function* loginRequest() {
   const email = yield select(makeSelectEmail());
@@ -12,7 +13,8 @@ export function* loginRequest() {
     username: email,
     password,
   });
-  console.log(res)
+  console.log(res);
+  yield put(errorOnLogin(''));
   if (res.ok) {
     yield call(() =>
       localStorage.setItem('identity', JSON.stringify(identity)),
@@ -20,7 +22,7 @@ export function* loginRequest() {
     yield put(changeEmail(''));
     yield put(changePassword(''));
   } else {
-    yield put();
+    yield put(errorOnLogin(messages.invalidCredentials));
   }
 }
 

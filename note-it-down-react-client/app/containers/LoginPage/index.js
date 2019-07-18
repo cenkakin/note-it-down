@@ -2,7 +2,7 @@ import React, { memo, useEffect } from 'react';
 import { connect } from 'react-redux';
 import { createStructuredSelector } from 'reselect';
 import { Helmet } from 'react-helmet';
-import { FormattedMessage } from 'react-intl';
+import { FormattedMessage, injectIntl } from 'react-intl';
 import PropTypes from 'prop-types';
 import Grid from '@material-ui/core/Grid';
 import Link from '@material-ui/core/Link';
@@ -16,9 +16,13 @@ import { compose } from 'redux';
 import { Redirect } from 'react-router-dom';
 import Container from '@material-ui/core/Container';
 import Typography from '@material-ui/core/Typography';
-import Form from '../../components/Form';
+import { useSnackbar } from 'notistack';
 
-import { makeSelectEmail, makeSelectLoginError, makeSelectPassword } from './selectors';
+import {
+  makeSelectEmail,
+  makeSelectLoginError,
+  makeSelectPassword,
+} from './selectors';
 import { changeEmail, changePassword, login } from './actions';
 import messages from './messages';
 import { makeSelectLoggedIn } from '../App/selectors';
@@ -27,7 +31,7 @@ import StyledAvatar from './StyledAvatar';
 import StyledButton from '../../components/Button/StyledButton';
 import reducer from './reducer';
 import saga from './saga';
-import SuccessMessage from '../../components/SuccessMessage';
+import Form from './Form';
 
 const key = 'login';
 
@@ -39,18 +43,19 @@ export function LoginPage({
   onChangePassword,
   loginError,
   loggedIn,
+  intl,
 }) {
   useInjectReducer({ key, reducer });
   useInjectSaga({ key, saga });
 
+  const { enqueueSnackbar } = useSnackbar();
+
   useEffect(() => {
     // When initial state username is not null, submit the form to load repos
     if (loginError != null && loginError !== '') {
-      // message.error(intl.formatMessage(loginError));
+      enqueueSnackbar(intl.formatMessage(loginError), { variant: 'error' });
     }
-  }, [loggedIn]);
-
-  // const { formatMessage } = intl;
+  }, [loginError]);
 
   function handleSubmit(e) {
     e.preventDefault();
@@ -59,9 +64,8 @@ export function LoginPage({
 
   return (
     <article>
-      <SuccessMessage isOpen />
       <Helmet>
-        <title>Sign In Page</title>
+        <title>Login Page</title>
         <meta name="Sign In Page" />
       </Helmet>
       <Container component="main" maxWidth="xs">
@@ -120,7 +124,7 @@ export function LoginPage({
                 </Link>
               </Grid>
               <Grid item>
-                <Link href="/signup" variant="body2">
+                <Link href="/sign-up" variant="body2">
                   <FormattedMessage {...messages.forwardSignUp} />
                 </Link>
               </Grid>
@@ -169,4 +173,4 @@ const withConnect = connect(
 export default compose(
   withConnect,
   memo,
-)(LoginPage);
+)(injectIntl(LoginPage));
