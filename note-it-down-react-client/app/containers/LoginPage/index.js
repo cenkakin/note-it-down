@@ -1,4 +1,5 @@
-import React, { memo, useEffect } from 'react';
+/* eslint-disable react/prop-types */
+import React, { memo } from 'react';
 import { connect } from 'react-redux';
 import { createStructuredSelector } from 'reselect';
 import { Helmet } from 'react-helmet';
@@ -10,57 +11,56 @@ import LockOutlinedIcon from '@material-ui/icons/LockOutlined';
 import FormControlLabel from '@material-ui/core/FormControlLabel';
 import Checkbox from '@material-ui/core/Checkbox';
 import TextField from '@material-ui/core/TextField';
-import { useInjectReducer } from 'utils/injectReducer';
-import { useInjectSaga } from 'utils/injectSaga';
 import { compose } from 'redux';
 import { Redirect } from 'react-router-dom';
 import Container from '@material-ui/core/Container';
 import Typography from '@material-ui/core/Typography';
-import { useSnackbar } from 'notistack';
 
-import {
-  makeSelectEmail,
-  makeSelectLoginError,
-  makeSelectPassword,
-} from './selectors';
-import { changeEmail, changePassword, login } from './actions';
+import { Formik } from 'formik';
+import * as Yup from 'yup';
+import { useSnackbar } from 'notistack';
 import messages from './messages';
-import { makeSelectLoggedIn } from '../App/selectors';
 import Paper from './Paper';
 import StyledAvatar from './StyledAvatar';
 import StyledButton from '../../components/Button/StyledButton';
-import reducer from './reducer';
-import saga from './saga';
 import Form from './Form';
+import { apiCall } from '../../utils/request';
+import { successfulLogin } from '../App/actions';
+import { makeSelectLoggedIn } from '../App/selectors';
 
-const key = 'login';
+const LoginSchema = Yup.object().shape({
+  email: Yup.string()
+    .email('Email is invalid')
+    .required('Email is required'),
+  password: Yup.string()
+    .min(6, 'Password must be at least 6 characters')
+    .required('Password is required'),
+});
 
-export function LoginPage({
-  email,
-  password,
-  onSubmitForm,
-  onChangeEmail,
-  onChangePassword,
-  loginError,
-  loggedIn,
-  intl,
-}) {
-  useInjectReducer({ key, reducer });
-  useInjectSaga({ key, saga });
+const initialValues = { email: '', password: '' };
 
+export function LoginPage({ loggedIn, onLoggedIn, intl }) {
   const { enqueueSnackbar } = useSnackbar();
 
-  useEffect(() => {
-    // When initial state username is not null, submit the form to load repos
-    if (loginError != null && loginError !== '') {
-      enqueueSnackbar(intl.formatMessage(loginError), { variant: 'error' });
-    }
-  }, [loginError]);
-
-  function handleSubmit(e) {
-    e.preventDefault();
-    onSubmitForm();
-  }
+  const onSubmit = (fields, { resetForm, setSubmitting }) => {
+    apiCall
+      .post('auth/login', {
+        username: fields.email,
+        password: fields.password,
+      })
+      .then(res => {
+        setSubmitting(false);
+        if (res.ok) {
+          onLoggedIn(fields.email);
+          resetForm(initialValues);
+        } else {
+          enqueueSnackbar(intl.formatMessage(messages.invalidCredentials), {
+            variant: 'error',
+            autoHideDuration: 4000,
+          });
+        }
+      });
+  };
 
   return (
     <article>
@@ -77,59 +77,86 @@ export function LoginPage({
           <Typography component="h1" variant="h5">
             <FormattedMessage {...messages.header} />
           </Typography>
-          <Form onSubmit={handleSubmit}>
-            <TextField
-              variant="outlined"
-              margin="normal"
-              required
-              fullWidth
-              id="email"
-              label="Email Address"
-              name="email"
-              autoComplete="email"
-              autoFocus
-              onChange={onChangeEmail}
-              value={email}
-            />
-            <TextField
-              variant="outlined"
-              margin="normal"
-              required
-              fullWidth
-              name="password"
-              label="Password"
-              type="password"
-              id="password"
-              autoComplete="current-password"
-              onChange={onChangePassword}
-              value={password}
-            />
-            <FormControlLabel
-              control={<Checkbox value="remember" color="primary" />}
-              label=<FormattedMessage {...messages.rememberMe} />
-            />
-            <StyledButton
-              type="submit"
-              fullWidth
-              variant="contained"
-              color="primary"
-            >
-              <FormattedMessage {...messages.loginButton} />
-            </StyledButton>
-            <Grid container>
-              <Grid item xs>
-                {/* eslint-disable-next-line jsx-a11y/anchor-is-valid */}
-                <Link href="#" variant="body2">
-                  <FormattedMessage {...messages.forgotPassword} />
-                </Link>
-              </Grid>
-              <Grid item>
-                <Link href="/sign-up" variant="body2">
-                  <FormattedMessage {...messages.forwardSignUp} />
-                </Link>
-              </Grid>
-            </Grid>
-          </Form>
+          <Formik
+            initialValues={initialValues}
+            onSubmit={onSubmit}
+            validationSchema={LoginSchema}
+            render={props => {
+              const {
+                values,
+                touched,
+                errors,
+                isSubmitting,
+                handleChange,
+                handleBlur,
+                handleSubmit,
+              } = props;
+
+              const isError = {
+                email: errors.email && touched.email,
+                password: errors.password && touched.password,
+              };
+
+              return (
+                <Form onSubmit={handleSubmit}>
+                  <TextField
+                    error={isError.email}
+                    helperText={isError.email && errors.email}
+                    value={values.email}
+                    variant="outlined"
+                    fullWidth
+                    id="email"
+                    label="Email Address"
+                    name="email"
+                    autoComplete="email"
+                    onChange={handleChange}
+                    onBlur={handleBlur}
+                    autoFocus
+                  />
+                  <TextField
+                    error={isError.password}
+                    helperText={isError.password && errors.password}
+                    value={values.password}
+                    variant="outlined"
+                    margin="normal"
+                    fullWidth
+                    name="password"
+                    label="Password"
+                    type="password"
+                    id="password"
+                    autoComplete="current-password"
+                    onChange={handleChange}
+                    onBlur={handleBlur}
+                  />
+                  <FormControlLabel
+                    control={<Checkbox value="remember" color="primary" />}
+                    label=<FormattedMessage {...messages.rememberMe} />
+                  />
+                  <StyledButton
+                    type="submit"
+                    fullWidth
+                    variant="contained"
+                    color="primary"
+                    disabled={isSubmitting}
+                  >
+                    <FormattedMessage {...messages.loginButton} />
+                  </StyledButton>
+                  <Grid container>
+                    <Grid item xs>
+                      <Link href="#" variant="body2">
+                        <FormattedMessage {...messages.forgotPassword} />
+                      </Link>
+                    </Grid>
+                    <Grid item>
+                      <Link href="/sign-up" variant="body2">
+                        <FormattedMessage {...messages.forwardSignUp} />
+                      </Link>
+                    </Grid>
+                  </Grid>
+                </Form>
+              );
+            }}
+          />
         </Paper>
       </Container>
     </article>
@@ -138,31 +165,18 @@ export function LoginPage({
 
 LoginPage.propTypes = {
   intl: PropTypes.object,
-  form: PropTypes.object,
-  onSubmitForm: PropTypes.func,
-  onChangeEmail: PropTypes.func,
-  onChangePassword: PropTypes.func,
-  loginError: PropTypes.any,
+  onLoggedIn: PropTypes.func,
   loggedIn: PropTypes.bool,
-  email: PropTypes.string,
-  password: PropTypes.string,
 };
 
 export function mapDispatchToProps(dispatch) {
   return {
-    onChangeEmail: e => dispatch(changeEmail(e.target.value)),
-    onChangePassword: e => dispatch(changePassword(e.target.value)),
-    onSubmitForm: () => {
-      dispatch(login());
-    },
+    onLoggedIn: email => dispatch(successfulLogin(email)),
   };
 }
 
 const mapStateToProps = createStructuredSelector({
   loggedIn: makeSelectLoggedIn(),
-  email: makeSelectEmail(),
-  password: makeSelectPassword(),
-  loginError: makeSelectLoginError(),
 });
 
 const withConnect = connect(

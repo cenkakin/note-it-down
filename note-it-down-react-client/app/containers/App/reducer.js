@@ -8,7 +8,7 @@
  */
 
 import produce from 'immer';
-import { LOAD_REPOS_SUCCESS, LOAD_REPOS, LOAD_REPOS_ERROR } from './constants';
+import { LOAD_REPOS_SUCCESS, LOAD_REPOS, LOAD_REPOS_ERROR, LOGGED_IN } from './constants';
 
 const isAuthenticated = () => !!localStorage.getItem('identity');
 
@@ -27,6 +27,12 @@ export const initialState = {
 const appReducer = (state = initialState, action) =>
   produce(state, draft => {
     switch (action.type) {
+      case LOGGED_IN:
+        draft.loggedIn = true;
+        draft.currentUser = {
+          email: draft.email,
+        };
+        break;
       case LOAD_REPOS:
         draft.loading = true;
         draft.error = false;

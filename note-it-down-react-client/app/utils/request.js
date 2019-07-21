@@ -55,7 +55,7 @@ const getErrorMessageWhenSystemFails = (res) => {
   return errorMessage;
 };
 
-const apiCall = create();
+export const apiCall = create();
 
 export function* doGetRequest(url, params) {
   return yield call(doRequest, apiCall.get, url, params);
