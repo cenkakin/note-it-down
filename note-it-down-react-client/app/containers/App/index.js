@@ -1,12 +1,4 @@
-/**
- *
- * App
- *
- * This component is the skeleton around the actual pages, and should only
- * contain code that should be seen on all pages. (e.g. navigation bar)
- */
-
-import React from 'react';
+import React, { memo } from 'react';
 import { Helmet } from 'react-helmet';
 import { Route, Switch } from 'react-router-dom';
 
@@ -14,9 +6,17 @@ import HomePage from 'containers/HomePage/Loadable';
 import LoginPage from 'containers/LoginPage/Loadable';
 import NotFoundPage from 'containers/NotFoundPage/Loadable';
 import { SnackbarProvider } from 'notistack';
-import { SignUpPage } from '../SignUpPage';
+import { createStructuredSelector } from 'reselect';
+import { compose } from 'redux';
+import { connect } from 'react-redux';
+import PropTypes from 'prop-types';
+import SignUpPage from 'containers/SignUpPage/Loadable';
+import WorkspacePage from 'containers/WorkspacePage/Loadable';
+import { PrivateRoute } from './PrivateRoute';
+import { makeSelectLoggedIn } from './selectors';
+import { AnonymousRoute } from './AnonymousRoute';
 
-export default function App() {
+export function App({ loggedIn }) {
   return (
     <SnackbarProvider
       maxSnack={3}
@@ -26,22 +26,57 @@ export default function App() {
       }}
     >
       <div>
-        <Helmet
-          titleTemplate="%s - React.js Boilerplate"
-          defaultTitle="React.js Boilerplate"
-        >
-          <meta
-            name="description"
-            content="A React.js Boilerplate application"
-          />
+        <Helmet titleTemplate="%s - Note it down!" defaultTitle="Note it down!">
+          <meta name="description" content="Note your things" />
         </Helmet>
         <Switch>
-          <Route exact path="/" component={HomePage} />
-          <Route path="/login" component={LoginPage} />
-          <Route path="/sign-up" component={SignUpPage} />
+          <PrivateRoute
+            loggedIn={loggedIn}
+            exact
+            path="/"
+            component={HomePage}
+          />
+          <PrivateRoute
+            loggedIn={loggedIn}
+            exact
+            path="/workspace"
+            component={WorkspacePage}
+          />
+          <AnonymousRoute
+            loggedIn={loggedIn}
+            path="/login"
+            component={LoginPage}
+          />
+          <AnonymousRoute
+            loggedIn={loggedIn}
+            path="/sign-up"
+            component={SignUpPage}
+          />
           <Route path="" component={NotFoundPage} />
         </Switch>
       </div>
     </SnackbarProvider>
   );
 }
+
+App.propTypes = {
+  loggedIn: PropTypes.bool,
+};
+
+const mapStateToProps = createStructuredSelector({
+  loggedIn: makeSelectLoggedIn(),
+});
+
+function mapDispatchToProps() {
+  return {};
+}
+
+const withConnect = connect(
+  mapStateToProps,
+  mapDispatchToProps,
+);
+
+export default compose(
+  withConnect,
+  memo,
+)(App);

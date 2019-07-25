@@ -32,14 +32,16 @@
             <artifactId>spring-cloud-starter-netflix-eureka-client</artifactId>
         </dependency>
         <dependency>
+            <groupId>org.glassfish.jaxb</groupId>
+            <artifactId>jaxb-runtime</artifactId>
+        </dependency>
+        <dependency>
             <groupId>io.jsonwebtoken</groupId>
             <artifactId>jjwt</artifactId>
-            <version>${jjwt.version}</version>
         </dependency>
         <dependency>
             <groupId>com.github.noteitdown</groupId>
             <artifactId>common</artifactId>
-            <version>${note-it-down-common.version}</version>
         </dependency>
     </dependencies>
 </project>

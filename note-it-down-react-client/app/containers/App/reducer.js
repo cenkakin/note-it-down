@@ -1,23 +1,21 @@
-/*
- * AppReducer
- *
- * The reducer takes care of our data. Using actions, we can
- * update our application state. To add a new action,
- * add it to the switch statement in the reducer function
- *
- */
-
 import produce from 'immer';
-import { LOAD_REPOS_SUCCESS, LOAD_REPOS, LOAD_REPOS_ERROR, LOGGED_IN } from './constants';
-
-const isAuthenticated = () => !!localStorage.getItem('identity');
+import {
+  LOAD_REPOS,
+  LOAD_REPOS_ERROR,
+  LOAD_REPOS_SUCCESS,
+  LOGGED_IN,
+} from './constants';
+import { getUser } from '../../utils/storage';
 
 // The initial state of the App
+
+const user = getUser();
+
 export const initialState = {
-  loggedIn: false,
+  loggedIn: !!user,
   loading: false,
   error: false,
-  currentUser: false,
+  user: user || {},
   userData: {
     repositories: false,
   },
@@ -29,9 +27,7 @@ const appReducer = (state = initialState, action) =>
     switch (action.type) {
       case LOGGED_IN:
         draft.loggedIn = true;
-        draft.currentUser = {
-          email: draft.email,
-        };
+        draft.user = action.user;
         break;
       case LOAD_REPOS:
         draft.loading = true;

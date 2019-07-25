@@ -50,7 +50,7 @@ const render = messages => {
       <ThemeProvider theme={theme}>
         <LanguageProvider messages={messages}>
           <ConnectedRouter history={history}>
-            <App/>
+            <App />
           </ConnectedRouter>
         </LanguageProvider>
       </ThemeProvider>

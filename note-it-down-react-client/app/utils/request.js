@@ -4,18 +4,27 @@ import apisauce from 'apisauce';
 import { call } from 'redux-saga/effects';
 
 import messages from './messages';
+import { getUser } from './storage';
 
 const create = () => {
-  const api = apisauce.create({
+  const apiSauce = apisauce.create({
     baseURL: 'http://localhost:8762/',
-    'Cache-Control': 'no-cache',
-    'X-Device-Type': 'NORMAL',
+		headers: {
+    	'Access-Control-Allow-Origin': '*',
+		}
   });
 
-  const get = (url, parameters = {}) => executeRequest(() => api.get(url, parameters));
-  const post = (url, object = {}) => executeRequest(() => api.post(url, object));
-  const put = (url, object = {}) => executeRequest(() => api.put(url, object));
-  const remove = (url, parameters = {}) => executeRequest(() => api.delete(url, parameters));
+  const get = (url, parameters = {}) => executeRequest(() => apiSauce.get(url, parameters));
+  const post = (url, object = {}) => executeRequest(() => apiSauce.post(url, object));
+  const put = (url, object = {}) => executeRequest(() => apiSauce.put(url, object));
+  const remove = (url, parameters = {}) => executeRequest(() => apiSauce.delete(url, parameters));
+  const setToken = (token) => apiSauce.setHeader('Authorization', token);
+
+	const user = getUser();
+
+	if(user && user.token) {
+		setToken(user.token);
+	}
 
   const executeRequest = (req) => new Promise((resolve) => {
     resolve(req().then((res) => {
@@ -28,6 +37,7 @@ const create = () => {
     post,
     put,
     remove,
+		setToken,
   };
 };
 
@@ -55,22 +65,22 @@ const getErrorMessageWhenSystemFails = (res) => {
   return errorMessage;
 };
 
-export const apiCall = create();
+export const api = create();
 
 export function* doGetRequest(url, params) {
-  return yield call(doRequest, apiCall.get, url, params);
+  return yield call(doRequest, api.get, url, params);
 }
 
 export function* doPostRequest(url, params) {
-  return yield call(doRequest, apiCall.post, url, params);
+  return yield call(doRequest, api.post, url, params);
 }
 
 export function* doPutRequest(url, params) {
-  return yield call(doRequest, apiCall.put, url, params);
+  return yield call(doRequest, api.put, url, params);
 }
 
 export function* doDeleteRequest(url, params) {
-  return yield call(doRequest, apiCall.remove, url, params);
+  return yield call(doRequest, api.remove, url, params);
 }
 
 function* doRequest(method, url, params) {

@@ -14,12 +14,14 @@ import Typography from '@material-ui/core/Typography';
 import * as Yup from 'yup';
 import { Formik } from 'formik';
 import { useSnackbar } from 'notistack';
+import { push } from 'connected-react-router';
+import PropTypes from 'prop-types';
 import Paper from './Paper';
 import StyledAvatar from './StyledAvatar';
 import Form from './Form';
 import StyledButton from '../../components/Button/StyledButton';
 import messages from './messages';
-import { apiCall } from '../../utils/request';
+import { api } from '../../utils/request';
 
 const SignUpSchema = Yup.object().shape({
   email: Yup.string()
@@ -35,11 +37,11 @@ const SignUpSchema = Yup.object().shape({
 
 const initialValues = { email: '', password: '', confirmPassword: '' };
 
-export function SignUpPage() {
+export function SignUpPage({ onSuccessfulRegister }) {
   const { enqueueSnackbar } = useSnackbar();
 
   const onSubmit = (fields, { resetForm, setSubmitting }) => {
-    apiCall
+    api
       .post('auth/users', {
         email: fields.email,
         password: fields.password,
@@ -48,6 +50,11 @@ export function SignUpPage() {
         setSubmitting(false);
         if (res.ok) {
           resetForm(initialValues);
+          enqueueSnackbar('Your account is successfully created!', {
+            variant: 'success',
+            autoHideDuration: 4000,
+          });
+          onSuccessfulRegister();
         } else {
           enqueueSnackbar(res.data.message || 'Error Happened!', {
             variant: 'error',
@@ -170,8 +177,14 @@ export function SignUpPage() {
   );
 }
 
-export function mapDispatchToProps() {
-  return {};
+SignUpPage.propTypes = {
+  onSuccessfulRegister: PropTypes.func,
+};
+
+export function mapDispatchToProps(dispatch) {
+  return {
+    onSuccessfulRegister: () => dispatch(push('/login')),
+  };
 }
 
 const mapStateToProps = createStructuredSelector({});

@@ -2,14 +2,24 @@
  * Create the store with dynamic reducers
  */
 
-import { createStore, applyMiddleware, compose } from 'redux';
+import { applyMiddleware, compose, createStore } from 'redux';
 import { routerMiddleware } from 'connected-react-router';
 import createSagaMiddleware from 'redux-saga';
 import createReducer from './reducers';
+import { LOGGED_IN } from './containers/App/constants';
+import { setUser } from './utils/storage';
 
 export default function configureStore(initialState = {}, history) {
   let composeEnhancers = compose;
   const reduxSagaMonitorOptions = {};
+
+  const localStorageMiddleware = () => next => action => {
+    const result = next(action);
+    if (result.type === LOGGED_IN) {
+      setUser(result.user);
+    }
+    return result;
+  };
 
   // If Redux Dev Tools and Saga Dev Tools Extensions are installed, enable them
   /* istanbul ignore next */
@@ -32,7 +42,11 @@ export default function configureStore(initialState = {}, history) {
   // Create the store with two middlewares
   // 1. sagaMiddleware: Makes redux-sagas work
   // 2. routerMiddleware: Syncs the location/URL path to the state
-  const middlewares = [sagaMiddleware, routerMiddleware(history)];
+  const middlewares = [
+    localStorageMiddleware,
+    sagaMiddleware,
+    routerMiddleware(history),
+  ];
 
   const enhancers = [applyMiddleware(...middlewares)];
 

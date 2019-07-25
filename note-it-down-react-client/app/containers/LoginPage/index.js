@@ -1,7 +1,6 @@
 /* eslint-disable react/prop-types */
 import React, { memo } from 'react';
 import { connect } from 'react-redux';
-import { createStructuredSelector } from 'reselect';
 import { Helmet } from 'react-helmet';
 import { FormattedMessage, injectIntl } from 'react-intl';
 import PropTypes from 'prop-types';
@@ -12,21 +11,20 @@ import FormControlLabel from '@material-ui/core/FormControlLabel';
 import Checkbox from '@material-ui/core/Checkbox';
 import TextField from '@material-ui/core/TextField';
 import { compose } from 'redux';
-import { Redirect } from 'react-router-dom';
 import Container from '@material-ui/core/Container';
 import Typography from '@material-ui/core/Typography';
 
 import { Formik } from 'formik';
 import * as Yup from 'yup';
 import { useSnackbar } from 'notistack';
+import { createStructuredSelector } from 'reselect';
 import messages from './messages';
 import Paper from './Paper';
 import StyledAvatar from './StyledAvatar';
 import StyledButton from '../../components/Button/StyledButton';
 import Form from './Form';
-import { apiCall } from '../../utils/request';
+import { api } from '../../utils/request';
 import { successfulLogin } from '../App/actions';
-import { makeSelectLoggedIn } from '../App/selectors';
 
 const LoginSchema = Yup.object().shape({
   email: Yup.string()
@@ -39,11 +37,11 @@ const LoginSchema = Yup.object().shape({
 
 const initialValues = { email: '', password: '' };
 
-export function LoginPage({ loggedIn, onLoggedIn, intl }) {
+export function LoginPage({ onLoggedIn, intl }) {
   const { enqueueSnackbar } = useSnackbar();
 
   const onSubmit = (fields, { resetForm, setSubmitting }) => {
-    apiCall
+    api
       .post('auth/login', {
         username: fields.email,
         password: fields.password,
@@ -51,8 +49,14 @@ export function LoginPage({ loggedIn, onLoggedIn, intl }) {
       .then(res => {
         setSubmitting(false);
         if (res.ok) {
-          onLoggedIn(fields.email);
           resetForm(initialValues);
+          const token = res.headers.authorization;
+          const user = {
+            email: fields.email,
+            token,
+          };
+          api.setToken(token);
+          onLoggedIn(user);
         } else {
           enqueueSnackbar(intl.formatMessage(messages.invalidCredentials), {
             variant: 'error',
@@ -69,7 +73,6 @@ export function LoginPage({ loggedIn, onLoggedIn, intl }) {
         <meta name="Sign In Page" />
       </Helmet>
       <Container component="main" maxWidth="xs">
-        {loggedIn ? <Redirect to="/" /> : null}
         <Paper>
           <StyledAvatar>
             <LockOutlinedIcon />
@@ -111,7 +114,6 @@ export function LoginPage({ loggedIn, onLoggedIn, intl }) {
                     autoComplete="email"
                     onChange={handleChange}
                     onBlur={handleBlur}
-                    autoFocus
                   />
                   <TextField
                     error={isError.password}
@@ -166,18 +168,15 @@ export function LoginPage({ loggedIn, onLoggedIn, intl }) {
 LoginPage.propTypes = {
   intl: PropTypes.object,
   onLoggedIn: PropTypes.func,
-  loggedIn: PropTypes.bool,
 };
 
-export function mapDispatchToProps(dispatch) {
+const mapStateToProps = createStructuredSelector({});
+
+function mapDispatchToProps(dispatch) {
   return {
-    onLoggedIn: email => dispatch(successfulLogin(email)),
+    onLoggedIn: user => dispatch(successfulLogin(user)),
   };
 }
-
-const mapStateToProps = createStructuredSelector({
-  loggedIn: makeSelectLoggedIn(),
-});
 
 const withConnect = connect(
   mapStateToProps,

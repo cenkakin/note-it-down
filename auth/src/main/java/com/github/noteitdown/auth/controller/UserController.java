@@ -32,8 +32,8 @@ public class UserController {
 			throw new BadRequestException(e.getMessage());
 		}
 		URI location = ServletUriComponentsBuilder
-			.fromCurrentContextPath().path("/users/{username}")
-			.buildAndExpand(user.getUsername()).toUri();
+			.fromCurrentContextPath().path("/users/{email}")
+			.buildAndExpand(user.getEmail()).toUri();
 		return ResponseEntity
 			.created(location)
 			.build();
