@@ -19,6 +19,7 @@ const create = () => {
   const put = (url, object = {}) => executeRequest(() => apiSauce.put(url, object));
   const remove = (url, parameters = {}) => executeRequest(() => apiSauce.delete(url, parameters));
   const setToken = (token) => apiSauce.setHeader('Authorization', token);
+  const removeToken = () => apiSauce.deleteHeader('Authorization');
 
 	const user = getUser();
 
@@ -38,6 +39,7 @@ const create = () => {
     put,
     remove,
 		setToken,
+    removeToken,
   };
 };
 

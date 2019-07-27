@@ -44,10 +44,10 @@ public class JwtTokenAuthenticationFilter extends OncePerRequestFilter {
             String username = claims.getSubject();
             if (username != null) {
                 @SuppressWarnings("unchecked")
-                List<String> authorities = (List<String>) claims.get("authorities");
+                List<GrantedAuthority> authorities = getAuthorities(claims);
                 String id = (String) claims.get("id");
                 UsernamePasswordAuthenticationToken auth = new UsernamePasswordAuthenticationToken(
-                        new Identity(id, username, authorities), null);
+                        new Identity(id, username, authorities), null, authorities);
 
                 SecurityContextHolder.getContext().setAuthentication(auth);
             }
@@ -58,6 +58,11 @@ public class JwtTokenAuthenticationFilter extends OncePerRequestFilter {
         chain.doFilter(request, response);
     }
 
+    private List<GrantedAuthority> getAuthorities(Claims claims) {
+        return ((List<String>) claims.get("authorities"))
+                .stream().map(SimpleGrantedAuthority::new).collect(Collectors.toList());
+    }
+
     public static class Identity implements ExtendedUserDetails {
 
         private final String id;
@@ -66,11 +71,10 @@ public class JwtTokenAuthenticationFilter extends OncePerRequestFilter {
 
         private final List<GrantedAuthority> authorities;
 
-        public Identity(String id, String username, List<String> authorities) {
+        public Identity(String id, String username, List<GrantedAuthority> authorities) {
             this.id = id;
             this.username = username;
-            this.authorities = authorities.stream().map(SimpleGrantedAuthority::new)
-                    .collect(Collectors.toList());
+            this.authorities = authorities;
         }
 
         @Override

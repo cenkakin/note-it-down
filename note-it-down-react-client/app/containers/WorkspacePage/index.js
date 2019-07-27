@@ -7,15 +7,16 @@ import { createStructuredSelector } from 'reselect';
 
 import { useInjectReducer } from 'utils/injectReducer';
 import { useInjectSaga } from 'utils/injectSaga';
+import TextField from '@material-ui/core/TextField';
 import reducer from './reducer';
 import saga from './saga';
-import { makeSelectUser } from '../App/selectors';
 import { loadWorkspace } from './actions';
 import { makeSelectWorkspace } from './selectors';
+import StyledPaper from './StyledPaper';
 
 const key = 'workspace';
 
-export function WorkspacePage({ user, onLoadWorkspace, workspace }) {
+export function WorkspacePage({ onLoadWorkspace, workspace }) {
   useInjectReducer({ key, reducer });
   useInjectSaga({ key, saga });
 
@@ -32,19 +33,28 @@ export function WorkspacePage({ user, onLoadWorkspace, workspace }) {
           content="Note it down application workspace page"
         />
       </Helmet>
-      <div>{`${workspace} ${user.email}`}!</div>
+
+      <div>
+        <StyledPaper elevator={15}>
+          <TextField
+            placeholder="Enter your first notes..."
+            fullWidth
+            defaultValue={workspace}
+            InputProps={{ disableUnderline: true, style: { lineHeight: 2.4 } }}
+            multiline
+          />
+        </StyledPaper>
+      </div>
     </article>
   );
 }
 
 WorkspacePage.propTypes = {
-  user: PropTypes.object,
   onLoadWorkspace: PropTypes.func,
   workspace: PropTypes.string,
 };
 
 const mapStateToProps = createStructuredSelector({
-  user: makeSelectUser(),
   workspace: makeSelectWorkspace(),
 });
 

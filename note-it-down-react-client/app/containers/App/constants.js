@@ -10,6 +10,7 @@
  */
 
 export const LOGGED_IN = 'noteitdown/App/LOGGED_IN';
+export const LOGGED_OUT = 'noteitdown/App/LOGGED_OUT';
 export const LOAD_REPOS = 'boilerplate/App/LOAD_REPOS';
 export const LOAD_REPOS_SUCCESS = 'boilerplate/App/LOAD_REPOS_SUCCESS';
 export const LOAD_REPOS_ERROR = 'boilerplate/App/LOAD_REPOS_ERROR';

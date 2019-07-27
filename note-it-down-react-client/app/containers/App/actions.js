@@ -15,7 +15,13 @@
  *    }
  */
 
-import { LOAD_REPOS, LOAD_REPOS_ERROR, LOAD_REPOS_SUCCESS, LOGGED_IN } from './constants';
+import {
+  LOAD_REPOS,
+  LOAD_REPOS_ERROR,
+  LOAD_REPOS_SUCCESS,
+  LOGGED_IN,
+  LOGGED_OUT,
+} from './constants';
 
 /**
  * Load the repositories, this action starts the request saga
@@ -32,6 +38,12 @@ export function successfulLogin(user) {
   return {
     type: LOGGED_IN,
     user,
+  };
+}
+
+export function logOut() {
+  return {
+    type: LOGGED_OUT,
   };
 }
 

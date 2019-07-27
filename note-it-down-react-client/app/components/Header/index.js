@@ -1,29 +1,67 @@
-import React from 'react';
-import { FormattedMessage } from 'react-intl';
+import React, { memo } from 'react';
+import AppBar from '@material-ui/core/AppBar';
+import Toolbar from '@material-ui/core/Toolbar';
+import Typography from '@material-ui/core/Typography';
+import IconButton from '@material-ui/core/IconButton';
+import ExitIcon from '@material-ui/icons/ExitToApp';
+import PropTypes from 'prop-types';
+import styled from 'styled-components';
+import { createStructuredSelector } from 'reselect';
+import { connect } from 'react-redux';
+import { compose } from 'redux';
+import { api } from '../../utils/request';
+import { logOut } from '../../containers/App/actions';
 
-import A from './A';
-import Img from './Img';
-import NavBar from './NavBar';
-import HeaderLink from './HeaderLink';
-import Banner from './banner.jpg';
-import messages from './messages';
+const StyledContainer = styled.div`
+  flex-grow: 1;
+`;
 
-function Header() {
+const StyledTitle = styled(Typography)`
+  && {
+    flex-grow: 1;
+    padding-left: ${props => props.theme.spacing(5)}px;
+  }
+`;
+
+export function MenuAppBar({ title, onLogout }) {
   return (
-    <div>
-      <A href="https://www.reactboilerplate.com/">
-        <Img src={Banner} alt="react-boilerplate - Logo" />
-      </A>
-      <NavBar>
-        <HeaderLink to="/">
-          <FormattedMessage {...messages.home} />
-        </HeaderLink>
-        <HeaderLink to="/features">
-          <FormattedMessage {...messages.features} />
-        </HeaderLink>
-      </NavBar>
-    </div>
+    <StyledContainer>
+      <AppBar position="static" color="secondary">
+        <Toolbar>
+          <StyledTitle variant="h6">{title || 'Home'}</StyledTitle>
+          <div>
+            <IconButton aria-label="log-out" onClick={onLogout} color="inherit">
+              <ExitIcon />
+            </IconButton>
+          </div>
+        </Toolbar>
+      </AppBar>
+    </StyledContainer>
   );
 }
 
-export default Header;
+MenuAppBar.propTypes = {
+  title: PropTypes.string,
+  onLogout: PropTypes.func,
+};
+
+const mapStateToProps = createStructuredSelector({});
+
+export function mapDispatchToProps(dispatch) {
+  return {
+    onLogout: () => {
+      api.removeToken();
+      dispatch(logOut());
+    },
+  };
+}
+
+const withConnect = connect(
+  mapStateToProps,
+  mapDispatchToProps,
+);
+
+export default compose(
+  withConnect,
+  memo,
+)(MenuAppBar);

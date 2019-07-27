@@ -11,23 +11,13 @@ import org.springframework.context.annotation.Configuration;
 @Configuration
 public class JwtProperties {
 
-    private String uri = "/auth/**";
-
     private String header = "Authorization";
 
     private String prefix = "Bearer ";
 
-    private int expiration = 24*60*60;
+    private int expiration = 24 * 60 * 60;
 
     private String secret = "JwtSecretKey";
-
-    public String getUri() {
-        return uri;
-    }
-
-    public void setUri(String uri) {
-        this.uri = uri;
-    }
 
     public String getHeader() {
         return header;

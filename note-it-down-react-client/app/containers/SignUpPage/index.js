@@ -22,6 +22,7 @@ import Form from './Form';
 import StyledButton from '../../components/Button/StyledButton';
 import messages from './messages';
 import { api } from '../../utils/request';
+import appIcon from '../../images/icon-512x512.png';
 
 const SignUpSchema = Yup.object().shape({
   email: Yup.string()
@@ -72,9 +73,7 @@ export function SignUpPage({ onSuccessfulRegister }) {
       </Helmet>
       <Container component="main" maxWidth="xs">
         <Paper>
-          <StyledAvatar>
-            <LockOutlinedIcon />
-          </StyledAvatar>
+          <StyledAvatar src={appIcon} />
           <Typography component="h1" variant="h5">
             <FormattedMessage {...messages.header} />
           </Typography>

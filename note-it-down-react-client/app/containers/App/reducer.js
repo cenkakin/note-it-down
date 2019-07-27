@@ -3,7 +3,7 @@ import {
   LOAD_REPOS,
   LOAD_REPOS_ERROR,
   LOAD_REPOS_SUCCESS,
-  LOGGED_IN,
+  LOGGED_IN, LOGGED_OUT,
 } from './constants';
 import { getUser } from '../../utils/storage';
 
@@ -28,6 +28,10 @@ const appReducer = (state = initialState, action) =>
       case LOGGED_IN:
         draft.loggedIn = true;
         draft.user = action.user;
+        break;
+      case LOGGED_OUT:
+        draft.loggedIn = false;
+        draft.user = {};
         break;
       case LOAD_REPOS:
         draft.loading = true;

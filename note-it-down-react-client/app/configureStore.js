@@ -6,8 +6,8 @@ import { applyMiddleware, compose, createStore } from 'redux';
 import { routerMiddleware } from 'connected-react-router';
 import createSagaMiddleware from 'redux-saga';
 import createReducer from './reducers';
-import { LOGGED_IN } from './containers/App/constants';
-import { setUser } from './utils/storage';
+import { LOGGED_IN, LOGGED_OUT } from './containers/App/constants';
+import { removeUser, setUser } from './utils/storage';
 
 export default function configureStore(initialState = {}, history) {
   let composeEnhancers = compose;
@@ -15,8 +15,16 @@ export default function configureStore(initialState = {}, history) {
 
   const localStorageMiddleware = () => next => action => {
     const result = next(action);
-    if (result.type === LOGGED_IN) {
-      setUser(result.user);
+    if (result) {
+      switch (result.type) {
+        case LOGGED_IN:
+          setUser(result.user);
+          break;
+        case LOGGED_OUT:
+          removeUser();
+          break;
+        default:
+      }
     }
     return result;
   };

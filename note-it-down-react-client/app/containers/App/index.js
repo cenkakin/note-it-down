@@ -15,6 +15,7 @@ import WorkspacePage from 'containers/WorkspacePage/Loadable';
 import { PrivateRoute } from './PrivateRoute';
 import { makeSelectLoggedIn } from './selectors';
 import { AnonymousRoute } from './AnonymousRoute';
+import Header from '../../components/Header';
 
 export function App({ loggedIn }) {
   return (
@@ -29,6 +30,7 @@ export function App({ loggedIn }) {
         <Helmet titleTemplate="%s - Note it down!" defaultTitle="Note it down!">
           <meta name="description" content="Note your things" />
         </Helmet>
+        {loggedIn ? <Header /> : null}
         <Switch>
           <PrivateRoute
             loggedIn={loggedIn}

@@ -6,7 +6,6 @@ import { FormattedMessage, injectIntl } from 'react-intl';
 import PropTypes from 'prop-types';
 import Grid from '@material-ui/core/Grid';
 import Link from '@material-ui/core/Link';
-import LockOutlinedIcon from '@material-ui/icons/LockOutlined';
 import FormControlLabel from '@material-ui/core/FormControlLabel';
 import Checkbox from '@material-ui/core/Checkbox';
 import TextField from '@material-ui/core/TextField';
@@ -18,6 +17,7 @@ import { Formik } from 'formik';
 import * as Yup from 'yup';
 import { useSnackbar } from 'notistack';
 import { createStructuredSelector } from 'reselect';
+import appIcon from '../../images/icon-512x512.png';
 import messages from './messages';
 import Paper from './Paper';
 import StyledAvatar from './StyledAvatar';
@@ -74,9 +74,7 @@ export function LoginPage({ onLoggedIn, intl }) {
       </Helmet>
       <Container component="main" maxWidth="xs">
         <Paper>
-          <StyledAvatar>
-            <LockOutlinedIcon />
-          </StyledAvatar>
+          <StyledAvatar src={appIcon} />
           <Typography component="h1" variant="h5">
             <FormattedMessage {...messages.header} />
           </Typography>
