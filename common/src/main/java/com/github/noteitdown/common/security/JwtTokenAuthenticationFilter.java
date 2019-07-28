@@ -47,7 +47,7 @@ public class JwtTokenAuthenticationFilter extends OncePerRequestFilter {
                 List<GrantedAuthority> authorities = getAuthorities(claims);
                 String id = (String) claims.get("id");
                 UsernamePasswordAuthenticationToken auth = new UsernamePasswordAuthenticationToken(
-                        new Identity(id, username, authorities), null, authorities);
+                        new Subject(id, username, authorities), null, authorities);
 
                 SecurityContextHolder.getContext().setAuthentication(auth);
             }
@@ -63,7 +63,7 @@ public class JwtTokenAuthenticationFilter extends OncePerRequestFilter {
                 .stream().map(SimpleGrantedAuthority::new).collect(Collectors.toList());
     }
 
-    public static class Identity implements ExtendedUserDetails {
+    public static class Subject implements Identity {
 
         private final String id;
 
@@ -71,7 +71,7 @@ public class JwtTokenAuthenticationFilter extends OncePerRequestFilter {
 
         private final List<GrantedAuthority> authorities;
 
-        public Identity(String id, String username, List<GrantedAuthority> authorities) {
+        public Subject(String id, String username, List<GrantedAuthority> authorities) {
             this.id = id;
             this.username = username;
             this.authorities = authorities;
@@ -119,7 +119,7 @@ public class JwtTokenAuthenticationFilter extends OncePerRequestFilter {
 
         @Override
         public String toString() {
-            return "Identity{" +
+            return "Subject{" +
                     "id='" + id + '\'' +
                     ", username='" + username + '\'' +
                     ", authorities=" + authorities +

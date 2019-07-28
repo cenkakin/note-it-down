@@ -2,11 +2,12 @@ package com.github.noteitdown.auth.domain;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.github.noteitdown.auth.request.SignUpRequest;
-import com.github.noteitdown.common.security.ExtendedUserDetails;
+import com.github.noteitdown.common.security.Identity;
 import com.github.noteitdown.common.security.UserRole;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.annotation.LastModifiedDate;
+import org.springframework.data.annotation.Version;
 import org.springframework.data.mongodb.core.index.Indexed;
 import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.security.core.GrantedAuthority;
@@ -17,12 +18,11 @@ import java.time.Instant;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Set;
-
 /**
  * Created by cenkakin
  */
 @Document
-public class User implements ExtendedUserDetails {
+public class User implements Identity {
 
     @Id
     private String id;
@@ -46,6 +46,9 @@ public class User implements ExtendedUserDetails {
 
     @LastModifiedDate
     private Instant lastModifiedAt;
+
+    @Version
+    private Long version;
 
     private User(String email, String password, Boolean active, Set<UserRole> roles) {
         this.email = email;
@@ -118,6 +121,14 @@ public class User implements ExtendedUserDetails {
         this.roles = roles;
     }
 
+    public Long getVersion() {
+        return version;
+    }
+
+    public void setVersion(Long version) {
+        this.version = version;
+    }
+
     @JsonIgnore
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
@@ -155,9 +166,10 @@ public class User implements ExtendedUserDetails {
                 ", email='" + email + '\'' +
                 ", password='" + password + '\'' +
                 ", active=" + active +
-                ", roles=" + roles.toString() +
+                ", roles=" + roles +
                 ", createdAt=" + createdAt +
                 ", lastModifiedAt=" + lastModifiedAt +
+                ", version=" + version +
                 '}';
     }
 

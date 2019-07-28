@@ -1,6 +1,6 @@
 package com.github.noteitdown.auth.security;
 
-import com.github.noteitdown.common.security.ExtendedUserDetails;
+import com.github.noteitdown.common.security.Identity;
 import com.github.noteitdown.common.security.JwtProperties;
 import io.jsonwebtoken.JwtBuilder;
 import io.jsonwebtoken.Jwts;
@@ -29,8 +29,8 @@ public class JwtTokenProvider {
                 .setExpiration(new Date(now + jwtProperties.getExpiration() * 1000))  // in milliseconds
                 .signWith(SignatureAlgorithm.HS512, jwtProperties.getSecret().getBytes());
         Object principal = authentication.getPrincipal();
-        if (ExtendedUserDetails.class.isAssignableFrom(principal.getClass())) {
-            jwtBuilder.claim("id", ((ExtendedUserDetails) principal).getId());
+        if (Identity.class.isAssignableFrom(principal.getClass())) {
+            jwtBuilder.claim("id", ((Identity) principal).getId());
         }
         return jwtBuilder
                 .compact();

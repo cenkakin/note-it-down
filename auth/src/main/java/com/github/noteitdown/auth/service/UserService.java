@@ -36,7 +36,7 @@ public class UserService implements UserDetailsService {
 
     public void registerUser(User user) {
         Optional<User> existingUser = userRepository.findByEmail(user.getEmail());
-        if(existingUser.isPresent()) {
+        if (existingUser.isPresent()) {
             throw new EmailAlreadyExistsException();
         }
         user.setPassword(encoder.encode(user.getPassword()));

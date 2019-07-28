@@ -25,7 +25,7 @@ public class JwtUsernamePasswordAuthenticationFilter extends AbstractAuthenticat
     public JwtUsernamePasswordAuthenticationFilter(JwtProperties jwtProperties,
                                                    JwtTokenProvider jwtTokenProvider,
                                                    AuthenticationManager authenticationManager) {
-        super(new AntPathRequestMatcher("/auth/login", "POST"));
+        super(new AntPathRequestMatcher("/login", "POST"));
         this.jwtTokenProvider = jwtTokenProvider;
         this.jwtProperties = jwtProperties;
         super.setAuthenticationManager(authenticationManager);

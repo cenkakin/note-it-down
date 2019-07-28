@@ -5,7 +5,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 /**
  * Created by cenkakin
  */
-public interface ExtendedUserDetails extends UserDetails {
+public interface Identity extends UserDetails {
 
     String getId();
 }
