@@ -58,5 +58,6 @@
         <module>auth</module>
         <module>registry</module>
         <module>workspace</module>
+        <module>note</module>
     </modules>
 </project>
