@@ -23,10 +23,16 @@
         <jaxb-runtime.version>2.4.0-b180830.0438</jaxb-runtime.version>
         <note-it-down-common.version>0.0.1-SNAPSHOT</note-it-down-common.version>
         <jjwt.version>0.9.1</jjwt.version>
+        <spring-boot-admin-starter-server.version>2.1.6</spring-boot-admin-starter-server.version>
     </properties>
 
     <dependencyManagement>
         <dependencies>
+            <dependency>
+                <groupId>de.codecentric</groupId>
+                <artifactId>spring-boot-admin-starter-server</artifactId>
+                <version>${spring-boot-admin-starter-server.version}</version>
+            </dependency>
             <dependency>
                 <groupId>com.github.noteitdown</groupId>
                 <artifactId>common</artifactId>
@@ -56,7 +62,7 @@
         <module>common</module>
         <module>gateway</module>
         <module>auth</module>
-        <module>registry</module>
+        <module>discovery</module>
         <module>workspace</module>
         <module>note</module>
     </modules>

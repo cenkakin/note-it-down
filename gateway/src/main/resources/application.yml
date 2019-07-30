@@ -6,6 +6,8 @@ server:
   port: 8762
 
 eureka:
+  instance:
+    instance-id: gateway-${random.uuid}
   client:
     service-url:
       default-zone: http://localhost:8761/eureka
@@ -32,3 +34,10 @@ hystrix:
         isolation:
           thread:
             timeoutInMilliseconds: 600000
+
+management:
+  endpoints:
+    web.exposure.include: "*"
+  endpoint:
+    health:
+      show-details: ALWAYS

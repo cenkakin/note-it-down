@@ -48,6 +48,7 @@ public class SecurityCredentialsConfigurer extends WebSecurityConfigurerAdapter 
                                 super.authenticationManagerBean()),
                         UsernamePasswordAuthenticationFilter.class)
                 .authorizeRequests()
+                .antMatchers("/actuator/**").permitAll()
                 .antMatchers(HttpMethod.POST, "/users").anonymous()
                 .anyRequest().authenticated();
     }
