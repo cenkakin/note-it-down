@@ -1,40 +1,51 @@
 package com.github.noteitdown.workspace.security;
 
 import com.github.noteitdown.common.security.JwtProperties;
-import com.github.noteitdown.common.security.JwtTokenAuthenticationFilter;
+import com.github.noteitdown.common.security.ServerHttpBearerAuthenticationConverter;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
-import org.springframework.security.config.annotation.web.builders.HttpSecurity;
-import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
-import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
-import org.springframework.security.config.http.SessionCreationPolicy;
-import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpMethod;
+import org.springframework.security.config.annotation.web.reactive.EnableWebFluxSecurity;
+import org.springframework.security.config.web.server.SecurityWebFiltersOrder;
+import org.springframework.security.config.web.server.ServerHttpSecurity;
+import org.springframework.security.web.server.SecurityWebFilterChain;
+import org.springframework.security.web.server.authentication.AuthenticationWebFilter;
+import org.springframework.security.web.server.authentication.ServerAuthenticationConverter;
+import org.springframework.web.cors.CorsConfiguration;
+import org.springframework.web.cors.reactive.UrlBasedCorsConfigurationSource;
+import reactor.core.publisher.Mono;
 
-import javax.servlet.http.HttpServletResponse;
-
-@EnableWebSecurity
+@EnableWebFluxSecurity
 @EnableConfigurationProperties(JwtProperties.class)
-public class SecurityTokenConfig extends WebSecurityConfigurerAdapter {
+public class SecurityTokenConfig {
 
-    private final JwtProperties jwtProperties;
+	private final JwtProperties jwtProperties;
 
-    public SecurityTokenConfig(JwtProperties jwtProperties) {
-        this.jwtProperties = jwtProperties;
-    }
+	public SecurityTokenConfig(JwtProperties jwtProperties) {
+		this.jwtProperties = jwtProperties;
+	}
 
-    @Override
-    protected void configure(HttpSecurity http) throws Exception {
-        http.csrf().disable()
-                // make sure we use stateless session; session won't be used to store user's state.
-                .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS)
-                .and()
-                // handle an authorized attempts
-                .exceptionHandling().authenticationEntryPoint((req, rsp, e) -> rsp.sendError(HttpServletResponse.SC_UNAUTHORIZED))
-                .and()
-                // Add a filter to validate the tokens with every request
-                .addFilterAfter(new JwtTokenAuthenticationFilter(jwtProperties),
-                        UsernamePasswordAuthenticationFilter.class)
-                .authorizeRequests()
-                .antMatchers("/actuator/**").permitAll()
-                .anyRequest().authenticated();
-    }
+	@Bean
+	public SecurityWebFilterChain securityWebFilterChain(ServerHttpSecurity http) {
+		return http
+			.csrf().disable()
+			.exceptionHandling()
+			.and()
+			.authorizeExchange()
+			.pathMatchers("/actuator/**").permitAll()
+			.anyExchange()
+				.authenticated()
+			.and()
+			.addFilterAt(bearerAuthenticationFilter(), SecurityWebFiltersOrder.AUTHENTICATION)
+			.build();
+	}
+
+	private AuthenticationWebFilter bearerAuthenticationFilter() {
+		final AuthenticationWebFilter bearerAuthenticationFilter = new AuthenticationWebFilter(Mono::just);
+		final ServerAuthenticationConverter bearerConverter = new ServerHttpBearerAuthenticationConverter(jwtProperties);
+		bearerAuthenticationFilter.setServerAuthenticationConverter(bearerConverter);
+		return bearerAuthenticationFilter;
+	}
 }
