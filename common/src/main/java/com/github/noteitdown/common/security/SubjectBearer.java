@@ -17,9 +17,9 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package com.github.noteitdown.gateway.security.jwt;
+package com.github.noteitdown.common.security;
 
-import com.github.noteitdown.gateway.configuration.Identity;
+import com.github.noteitdown.common.security.Identity;
 import io.jsonwebtoken.Claims;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;

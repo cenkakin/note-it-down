@@ -13,19 +13,6 @@ spring:
     name: gateway-service
   cloud:
     gateway:
-#      globalcors:
-#        corsConfigurations:
-#          '[/**]':
-#            allowedOrigins: "*"
-#            allowedHeader: "*"
-#            allowedMethods:
-#              - GET
-#              - OPTIONS
-#              - HEAD
-#              - PUT
-#              - POST
-#              - DELETE
-#              - PATCH
       discovery:
         locator:
           enabled: true
@@ -42,18 +29,6 @@ spring:
             - Path=/workspace/**
           filters:
             - RewritePath=/workspace/(?<path>.*), /$\{path}
-
-#
-#zuul:
-#  sensitiveHeaders: Cookie,Set-Cookie
-#  ignored-services: '*'
-#  routes:
-#    auth-service:
-#      path: /auth/**
-#      service-id: auth-service
-#    workspace-service:
-#      path: /workspace/**
-#      service-id: workspace-service
 
 ribbon:
   ConnectTimeout: 60000
