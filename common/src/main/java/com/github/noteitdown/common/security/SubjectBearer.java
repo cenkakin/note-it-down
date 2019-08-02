@@ -19,7 +19,6 @@
  */
 package com.github.noteitdown.common.security;
 
-import com.github.noteitdown.common.security.Identity;
 import io.jsonwebtoken.Claims;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -29,9 +28,9 @@ import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import java.util.List;
 import java.util.stream.Collectors;
 
-public class SubjectBearer {
+class SubjectBearer {
 
-    public static Authentication create(Claims claims) {
+    static Authentication create(Claims claims) {
         List<GrantedAuthority> authorities = getAuthorities(claims);
         String id = (String) claims.get("id");
         return new UsernamePasswordAuthenticationToken(
