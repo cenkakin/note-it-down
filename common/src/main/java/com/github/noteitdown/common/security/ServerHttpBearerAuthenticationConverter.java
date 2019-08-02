@@ -15,39 +15,38 @@ import java.util.function.Predicate;
  */
 public class ServerHttpBearerAuthenticationConverter implements ServerAuthenticationConverter {
 
-    private final JwtProperties jwtProperties;
+	private final JwtProperties jwtProperties;
 
-    private final Predicate<String> matchBearerLength;
-    private final Function<String, Mono<String>> isolateBearerValue;
+	private final Predicate<String> matchBearerLength;
+	private final Function<String, Mono<String>> isolateBearerValue;
 
-    public ServerHttpBearerAuthenticationConverter(JwtProperties jwtProperties) {
-        this.jwtProperties = jwtProperties;
-        final String prefix = jwtProperties.getPrefix();
-        matchBearerLength = authValue -> authValue.length() > prefix.length();
-        isolateBearerValue = authValue -> Mono.justOrEmpty(authValue.substring(prefix.length()));
-    }
+	public ServerHttpBearerAuthenticationConverter(JwtProperties jwtProperties) {
+		this.jwtProperties = jwtProperties;
+		final String prefix = jwtProperties.getPrefix();
+		matchBearerLength = authValue -> authValue.length() > prefix.length();
+		isolateBearerValue = authValue -> Mono.justOrEmpty(authValue.substring(prefix.length()));
+	}
 
-    @Override
-    public Mono<Authentication> convert(ServerWebExchange serverWebExchange) {
-        return Mono.justOrEmpty(serverWebExchange)
-                .flatMap(AuthorizationHeaderPayload::extract)
-                .filter(matchBearerLength)
-                .flatMap(isolateBearerValue)
-                .flatMap(token -> Mono.justOrEmpty(getClaims(token)))
-                .map(SubjectBearer::create)
-                .log();
-    }
+	@Override
+	public Mono<Authentication> convert(ServerWebExchange serverWebExchange) {
+		return Mono.justOrEmpty(serverWebExchange)
+			.flatMap(AuthorizationHeaderPayload::extract)
+			.filter(matchBearerLength)
+			.flatMap(isolateBearerValue)
+			.flatMap(token -> Mono.justOrEmpty(getClaims(token)))
+			.map(SubjectBearer::create);
+	}
 
-    private Claims getClaims(String token) {
-        Claims claims;
-        try {
-            claims = Jwts.parser()
-                    .setSigningKey(jwtProperties.getSecret().getBytes())
-                    .parseClaimsJws(token)
-                    .getBody();
-        } catch (Exception e) {
-            return null;
-        }
-        return claims.getSubject() != null ? claims : null;
-    }
+	private Claims getClaims(String token) {
+		Claims claims;
+		try {
+			claims = Jwts.parser()
+				.setSigningKey(jwtProperties.getSecret().getBytes())
+				.parseClaimsJws(token)
+				.getBody();
+		} catch (Exception e) {
+			return null;
+		}
+		return claims.getSubject() != null ? claims : null;
+	}
 }
