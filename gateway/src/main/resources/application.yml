@@ -17,13 +17,19 @@ spring:
         locator:
           enabled: true
       routes:
+        - id: note_websocket_route
+          uri: lb:ws://note-service
+          predicates:
+            - Path=/note/websocket/**
+          filters:
+            - RewritePath=/note/(?<path>.*), /$\{path}
         - id: auth-service
           uri: lb://auth-service
           predicates:
             - Path=/auth/**
           filters:
             - RewritePath=/auth/(?<path>.*), /$\{path}
-        - id: customer-service
+        - id: workspace-service
           uri: lb://workspace-service
           predicates:
             - Path=/workspace/**

@@ -44,6 +44,7 @@ public class SecurityTokenConfig {
                 .pathMatchers("/actuator/**").permitAll()
                 .pathMatchers(HttpMethod.POST, "/auth/login").permitAll()
                 .pathMatchers(HttpMethod.POST, "/auth/users").permitAll()
+                .pathMatchers(HttpMethod.GET, "/note/websocket/note").permitAll()
                 .anyExchange().authenticated()
                 .and()
                 .addFilterAt(new BearerAuthenticationFilter(jwtProperties), SecurityWebFiltersOrder.AUTHENTICATION)

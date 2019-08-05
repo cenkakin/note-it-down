@@ -1,4 +1,4 @@
-import React, { memo, useEffect } from 'react';
+import React, { memo, useEffect, useState } from 'react';
 import PropTypes from 'prop-types';
 import { Helmet } from 'react-helmet';
 import { connect } from 'react-redux';
@@ -16,12 +16,24 @@ import StyledPaper from './StyledPaper';
 
 const key = 'workspace';
 
+const ws = new WebSocket('ws://localhost:8762/note/websocket/note');
+
 export function WorkspacePage({ onLoadWorkspace, workspace }) {
+  const [foo, setData] = useState([]);
+  ws.onmessage = function(event) {
+    setData([JSON.parse(event.data), ...foo]);
+    console.log(event.data);
+  };
+
+  ws.onclose = console.warn;
+
+  ws.onerror = console.error;
+
   useInjectReducer({ key, reducer });
   useInjectSaga({ key, saga });
 
   useEffect(() => {
-    onLoadWorkspace();
+    //onLoadWorkspace();
   }, []);
 
   return (
