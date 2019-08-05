@@ -17,8 +17,7 @@ public class NoteConfiguration {
 
 	@Bean
 	public HandlerMapping handlerMapping() {
-		Map<String, WebSocketHandler> map = Map.of("/path", new NoteWebSocketHandler());
-
+		Map<String, WebSocketHandler> map = Map.of("/websocket/note", new NoteWebSocketHandler());
 		SimpleUrlHandlerMapping mapping = new SimpleUrlHandlerMapping();
 		mapping.setUrlMap(map);
 		mapping.setOrder(Ordered.HIGHEST_PRECEDENCE + 1);

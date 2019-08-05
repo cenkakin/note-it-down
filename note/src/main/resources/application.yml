@@ -1,0 +1,23 @@
+spring:
+  application:
+    name: note-service
+
+server:
+  port: 9300
+
+eureka:
+  instance:
+    instance-id: note-${random.uuid}
+  client:
+    service-url:
+      default-zone: http://localhost:8761/eureka
+
+management:
+  endpoints:
+    web.exposure.include: "*"
+  endpoint:
+    health:
+      show-details: ALWAYS
+logging:
+  level:
+    root: DEBUG
