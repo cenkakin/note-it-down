@@ -2,14 +2,22 @@ package com.github.noteitdown.note.handler;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.github.noteitdown.note.dto.NoteCommandDto;
+import org.springframework.security.core.context.ReactiveSecurityContextHolder;
+import org.springframework.security.core.context.SecurityContext;
 import org.springframework.web.reactive.socket.WebSocketHandler;
 import org.springframework.web.reactive.socket.WebSocketMessage;
 import org.springframework.web.reactive.socket.WebSocketSession;
+import org.springframework.web.util.DefaultUriBuilderFactory;
+import org.springframework.web.util.UriBuilder;
+import org.springframework.web.util.UriBuilderFactory;
+import org.springframework.web.util.UriComponentsBuilder;
+import org.springframework.web.util.UriUtils;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 import java.io.IOException;
 import java.time.Duration;
+import java.util.concurrent.CompletableFuture;
 
 import static java.util.UUID.randomUUID;
 
@@ -25,10 +33,12 @@ public class NoteWebSocketHandler implements WebSocketHandler {
     private Flux<String> intervalFlux = Flux.interval(Duration.ofMillis(1000L))
             .zipWith(eventFlux, (time, event) -> event);
 
-
     @Override
     public Mono<Void> handle(WebSocketSession session) {
-        Mono<Void> input = session.receive()
+		String subject = UriComponentsBuilder.fromUri(session.getHandshakeInfo().getUri())
+			.build().getQueryParams().getFirst("subject");
+
+		Mono<Void> input = session.receive()
                 .map(WebSocketMessage::getPayloadAsText)
                 .map(this::toNoteCommandDto).then();
         Mono<Void> output = session.send(intervalFlux
@@ -37,11 +47,6 @@ public class NoteWebSocketHandler implements WebSocketHandler {
 
         return Mono.zip(input, output).then();
     }
-//
-//	public static void main(String[] args) {
-//		URI targetUri = URI.create("http://backend-service/foo/");
-//		System.out.println(targetUri.getAuthority());
-//	}
 
     private NoteCommandDto toNoteCommandDto(String json) {
         try {

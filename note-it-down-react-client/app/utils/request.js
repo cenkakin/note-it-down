@@ -4,7 +4,7 @@ import apisauce from 'apisauce';
 import { call } from 'redux-saga/effects';
 
 import messages from './messages';
-import { getUser } from './storage';
+import { getUserWrapper } from './storage';
 
 const create = () => {
   const apiSauce = apisauce.create({
@@ -21,10 +21,10 @@ const create = () => {
   const setToken = (token) => apiSauce.setHeader('Authorization', token);
   const removeToken = () => apiSauce.deleteHeader('Authorization');
 
-	const user = getUser();
+	const userWrapper = getUserWrapper();
 
-	if(user && user.token) {
-		setToken(user.token);
+	if(userWrapper && userWrapper.token) {
+		setToken(userWrapper.token);
 	}
 
   const executeRequest = (req) => new Promise((resolve) => {

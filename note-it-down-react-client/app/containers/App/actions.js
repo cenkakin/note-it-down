@@ -34,10 +34,10 @@ export function loadRepos() {
   };
 }
 
-export function successfulLogin(user) {
+export function successfulLogin(userWrapper) {
   return {
     type: LOGGED_IN,
-    user,
+    userWrapper,
   };
 }
 
