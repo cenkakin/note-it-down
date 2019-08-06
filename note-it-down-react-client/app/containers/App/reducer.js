@@ -3,19 +3,20 @@ import {
   LOAD_REPOS,
   LOAD_REPOS_ERROR,
   LOAD_REPOS_SUCCESS,
-  LOGGED_IN, LOGGED_OUT,
+  LOGGED_IN,
+  LOGGED_OUT,
 } from './constants';
-import { getUser } from '../../utils/storage';
+import { getUserWrapper } from '../../utils/storage';
 
 // The initial state of the App
 
-const user = getUser();
+const userWrapper = getUserWrapper();
 
 export const initialState = {
-  loggedIn: !!user,
+  loggedIn: !!userWrapper,
   loading: false,
   error: false,
-  user: user || {},
+  userWrapper: userWrapper || {},
   userData: {
     repositories: false,
   },
@@ -27,11 +28,11 @@ const appReducer = (state = initialState, action) =>
     switch (action.type) {
       case LOGGED_IN:
         draft.loggedIn = true;
-        draft.user = action.user;
+        draft.userWrapper = action.userWrapper;
         break;
       case LOGGED_OUT:
         draft.loggedIn = false;
-        draft.user = {};
+        draft.userWrapper = {};
         break;
       case LOAD_REPOS:
         draft.loading = true;

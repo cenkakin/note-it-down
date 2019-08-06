@@ -7,7 +7,7 @@ import { routerMiddleware } from 'connected-react-router';
 import createSagaMiddleware from 'redux-saga';
 import createReducer from './reducers';
 import { LOGGED_IN, LOGGED_OUT } from './containers/App/constants';
-import { removeUser, setUser } from './utils/storage';
+import { removeUserWrapper, setUserWrapper } from './utils/storage';
 
 export default function configureStore(initialState = {}, history) {
   let composeEnhancers = compose;
@@ -18,10 +18,10 @@ export default function configureStore(initialState = {}, history) {
     if (result) {
       switch (result.type) {
         case LOGGED_IN:
-          setUser(result.user);
+          setUserWrapper(result.userWrapper);
           break;
         case LOGGED_OUT:
-          removeUser();
+          removeUserWrapper();
           break;
         default:
       }

@@ -51,12 +51,12 @@ export function LoginPage({ onLoggedIn, intl }) {
         if (res.ok) {
           resetForm(initialValues);
           const token = res.headers.authorization;
-          const user = {
-            email: fields.email,
+          const userWrapper = {
+            user: res.data,
             token,
           };
           api.setToken(token);
-          onLoggedIn(user);
+          onLoggedIn(userWrapper);
         } else {
           enqueueSnackbar(intl.formatMessage(messages.invalidCredentials), {
             variant: 'error',
@@ -172,7 +172,7 @@ const mapStateToProps = createStructuredSelector({});
 
 function mapDispatchToProps(dispatch) {
   return {
-    onLoggedIn: user => dispatch(successfulLogin(user)),
+    onLoggedIn: userWrapper => dispatch(successfulLogin(userWrapper)),
   };
 }
 

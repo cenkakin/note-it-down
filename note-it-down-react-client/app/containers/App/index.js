@@ -2,7 +2,6 @@ import React, { memo } from 'react';
 import { Helmet } from 'react-helmet';
 import { Route, Switch } from 'react-router-dom';
 
-import HomePage from 'containers/HomePage/Loadable';
 import LoginPage from 'containers/LoginPage/Loadable';
 import NotFoundPage from 'containers/NotFoundPage/Loadable';
 import { SnackbarProvider } from 'notistack';
@@ -32,12 +31,6 @@ export function App({ loggedIn }) {
         </Helmet>
         {loggedIn ? <Header /> : null}
         <Switch>
-          <PrivateRoute
-            loggedIn={loggedIn}
-            exact
-            path="/"
-            component={HomePage}
-          />
           <PrivateRoute
             loggedIn={loggedIn}
             exact

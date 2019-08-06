@@ -13,15 +13,21 @@ import saga from './saga';
 import { loadWorkspace } from './actions';
 import { makeSelectWorkspace } from './selectors';
 import StyledPaper from './StyledPaper';
+import { getUserWrapper } from '../../utils/storage';
 
 const key = 'workspace';
 
-const ws = new WebSocket('ws://localhost:8762/note/websocket/note');
+const user = getUserWrapper();
+
+const ws = new WebSocket(
+  `ws://localhost:8762/note/websocket/note?token=${user.token}&subject=${
+    user.user.email
+  }&id=${user.user.id}`,
+);
 
 export function WorkspacePage({ onLoadWorkspace, workspace }) {
   const [foo, setData] = useState([]);
   ws.onmessage = function(event) {
-    setData([JSON.parse(event.data), ...foo]);
     console.log(event.data);
   };
 
@@ -33,7 +39,7 @@ export function WorkspacePage({ onLoadWorkspace, workspace }) {
   useInjectSaga({ key, saga });
 
   useEffect(() => {
-    //onLoadWorkspace();
+    onLoadWorkspace();
   }, []);
 
   return (

@@ -1,11 +1,11 @@
-export function setUser(user) {
-  localStorage.setItem('user', JSON.stringify(user));
+export function setUserWrapper(userWrapper) {
+  localStorage.setItem('userWrapper', JSON.stringify(userWrapper));
 }
 
-export function removeUser() {
-  localStorage.removeItem('user');
+export function removeUserWrapper() {
+  localStorage.removeItem('userWrapper');
 }
 
-export function getUser() {
-  return JSON.parse(localStorage.getItem('user'));
+export function getUserWrapper() {
+  return JSON.parse(localStorage.getItem('userWrapper'));
 }

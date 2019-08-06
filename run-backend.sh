@@ -1,0 +1,10 @@
+cd ./discovery
+./run.sh &
+cd ../auth
+./run.sh &
+cd ../gateway
+./run.sh &
+cd ../workspace
+./run.sh &
+#cd ../note
+#./run.sh &
