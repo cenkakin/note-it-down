@@ -2,6 +2,7 @@ package com.github.noteitdown.note.security;
 
 import com.github.noteitdown.common.security.BearerAuthenticationFilter;
 import com.github.noteitdown.common.security.JwtProperties;
+import com.github.noteitdown.common.security.QueryParamAuthenticationFilter;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.security.config.annotation.web.reactive.EnableWebFluxSecurity;
