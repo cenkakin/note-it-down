@@ -1,12 +1,17 @@
-package com.github.noteitdown.note.dto;
+package com.github.noteitdown.note.websocket.event;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+
+import java.io.IOException;
 import java.util.List;
 
-public class NoteCommandDto {
+public class NoteEvent {
+
+	private final static ObjectMapper OBJECT_MAPPER = new ObjectMapper();
 
 	private String transactionId;
 
-	private List<NoteOperationDto> operations;
+	private List<NoteOperation> operations;
 
 	public String getTransactionId() {
 		return transactionId;
@@ -16,15 +21,15 @@ public class NoteCommandDto {
 		this.transactionId = transactionId;
 	}
 
-	public List<NoteOperationDto> getOperations() {
+	public List<NoteOperation> getOperations() {
 		return operations;
 	}
 
-	public void setOperations(List<NoteOperationDto> operations) {
+	public void setOperations(List<NoteOperation> operations) {
 		this.operations = operations;
 	}
 
-	public static class NoteOperationDto {
+	public static class NoteOperation {
 
 		private String noteId;
 
@@ -74,6 +79,33 @@ public class NoteCommandDto {
 
 		public void setContent(String content) {
 			this.content = content;
+		}
+
+		@Override
+		public String toString() {
+			return "NoteOperation{" +
+				"noteId='" + noteId + '\'' +
+				", parentNoteId='" + parentNoteId + '\'' +
+				", completed=" + completed +
+				", type='" + type + '\'' +
+				", content='" + content + '\'' +
+				'}';
+		}
+	}
+
+	@Override
+	public String toString() {
+		return "NoteEvent{" +
+			"transactionId='" + transactionId + '\'' +
+			", operations=" + operations +
+			'}';
+	}
+
+	public static NoteEvent to(String message) {
+		try {
+			return OBJECT_MAPPER.readValue(message, NoteEvent.class);
+		} catch (IOException e) {
+			throw new RuntimeException("Invalid JSON:" + message, e);
 		}
 	}
 }

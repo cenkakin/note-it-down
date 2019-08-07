@@ -35,6 +35,13 @@ export function WorkspacePage({ onLoadWorkspace, workspace }) {
 
   ws.onerror = console.error;
 
+  const event = {
+    transactionId: 123,
+    operations: [],
+  };
+
+  ws.onopen = () => ws.send(JSON.stringify(event));
+
   useInjectReducer({ key, reducer });
   useInjectSaga({ key, saga });
 
