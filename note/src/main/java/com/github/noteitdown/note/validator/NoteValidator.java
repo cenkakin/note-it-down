@@ -1,23 +1,24 @@
-package com.github.noteitdown.note.processor;
+package com.github.noteitdown.note.validator;
 
-import com.github.noteitdown.note.processor.event.NoteValidatedInternalEvent;
-import com.github.noteitdown.note.websocket.event.UserNoteEvent;
+import com.github.noteitdown.note.validator.event.NoteValidatedInternalEvent;
+import com.github.noteitdown.note.websocket.event.WsNoteEventWrapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.ApplicationEventPublisher;
+import reactor.core.publisher.ConnectableFlux;
 import reactor.core.publisher.Flux;
 
 import javax.annotation.PostConstruct;
 
-public class NoteProcessor {
+public class NoteValidator {
 
-    private static final Logger LOG = LoggerFactory.getLogger(NoteProcessor.class);
+    private static final Logger LOG = LoggerFactory.getLogger(NoteValidator.class);
 
-    private final Flux<UserNoteEvent> noteEventPublisher;
+    private final Flux<WsNoteEventWrapper> noteEventPublisher;
 
     private final ApplicationEventPublisher eventPublisher;
 
-    public NoteProcessor(Flux<UserNoteEvent> noteEventPublisher, ApplicationEventPublisher eventPublisher) {
+    public NoteValidator(Flux<WsNoteEventWrapper> noteEventPublisher, ApplicationEventPublisher eventPublisher) {
         this.noteEventPublisher = noteEventPublisher
                 .replay(25)
                 .autoConnect();
@@ -32,7 +33,7 @@ public class NoteProcessor {
     private void process() {
         noteEventPublisher
                 .log()
-                .map(NoteValidatedInternalEvent::new)
+                .map(NoteValidatedInternalEvent::of)
                 .doOnNext(eventPublisher::publishEvent)
                 .subscribe();
     }

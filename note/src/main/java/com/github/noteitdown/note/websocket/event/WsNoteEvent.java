@@ -5,7 +5,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import java.io.IOException;
 import java.util.List;
 
-public class NoteEvent {
+public class WsNoteEvent {
 
     private final static ObjectMapper OBJECT_MAPPER = new ObjectMapper();
 
@@ -95,15 +95,15 @@ public class NoteEvent {
 
     @Override
     public String toString() {
-        return "NoteEvent{" +
+        return "WsNoteEvent{" +
                 "transactionId='" + transactionId + '\'' +
                 ", operations=" + operations +
                 '}';
     }
 
-    public static NoteEvent to(String message) {
+    public static WsNoteEvent fromStringJson(String message) {
         try {
-            return OBJECT_MAPPER.readValue(message, NoteEvent.class);
+            return OBJECT_MAPPER.readValue(message, WsNoteEvent.class);
         } catch (IOException e) {
             throw new RuntimeException("Invalid JSON:" + message, e);
         }
