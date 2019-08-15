@@ -10,19 +10,19 @@ import org.springframework.security.web.server.util.matcher.ServerWebExchangeMat
 
 class LoginWebFilter extends AuthenticationWebFilter {
 
-	LoginWebFilter(ReactiveAuthenticationManager manager,
-				   ServerCodecConfigurer serverCodecConfigurer,
-				   JwtTokenProvider jwtTokenProvider,
-				   JwtProperties jwtProperties) {
-		super(manager);
+    LoginWebFilter(ReactiveAuthenticationManager manager,
+                   ServerCodecConfigurer serverCodecConfigurer,
+                   JwtTokenProvider jwtTokenProvider,
+                   JwtProperties jwtProperties) {
+        super(manager);
 
-		setRequiresAuthenticationMatcher(
-			ServerWebExchangeMatchers.pathMatchers(HttpMethod.POST, "/login")
-		);
-		ServerAuthenticationSuccessHandler successHandler =
-			new BasicAuthenticationSuccessHandler(jwtTokenProvider, jwtProperties);
+        setRequiresAuthenticationMatcher(
+                ServerWebExchangeMatchers.pathMatchers(HttpMethod.POST, "/login")
+        );
+        ServerAuthenticationSuccessHandler successHandler =
+                new BasicAuthenticationSuccessHandler(jwtTokenProvider, jwtProperties);
 
-		setServerAuthenticationConverter(new LoginRequestAuthenticationConverter(serverCodecConfigurer));
-		setAuthenticationSuccessHandler(successHandler);
-	}
+        setServerAuthenticationConverter(new LoginRequestAuthenticationConverter(serverCodecConfigurer));
+        setAuthenticationSuccessHandler(successHandler);
+    }
 }

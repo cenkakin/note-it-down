@@ -18,17 +18,17 @@ import javax.validation.Valid;
 @RequestMapping("/users")
 public class UserController {
 
-	private final UserService userService;
+    private final UserService userService;
 
-	public UserController(UserService userService) {
-		this.userService = userService;
-	}
+    public UserController(UserService userService) {
+        this.userService = userService;
+    }
 
-	@PostMapping
-	public Mono<ResponseEntity<Object>> createUser(@Valid @RequestBody SignUpRequest signUpRequest) {
-		return userService.registerUser(User.fromSignUpRequest(signUpRequest))
-			.map(u -> ResponseEntity.ok().build())
-			.onErrorMap(EmailAlreadyExistsException.class,
-				e -> new BadRequestException(e.getMessage()));
-	}
+    @PostMapping
+    public Mono<ResponseEntity<Object>> createUser(@Valid @RequestBody SignUpRequest signUpRequest) {
+        return userService.registerUser(User.fromSignUpRequest(signUpRequest))
+                .map(u -> ResponseEntity.ok().build())
+                .onErrorMap(EmailAlreadyExistsException.class,
+                        e -> new BadRequestException(e.getMessage()));
+    }
 }

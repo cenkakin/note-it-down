@@ -15,30 +15,30 @@ import java.util.Collections;
 
 public class LoginRequestAuthenticationConverter implements ServerAuthenticationConverter {
 
-	private final ResolvableType usernamePasswordType = ResolvableType.forClass(LoginRequest.class);
+    private final ResolvableType usernamePasswordType = ResolvableType.forClass(LoginRequest.class);
 
-	private final ServerCodecConfigurer serverCodecConfigurer;
+    private final ServerCodecConfigurer serverCodecConfigurer;
 
-	public LoginRequestAuthenticationConverter(ServerCodecConfigurer serverCodecConfigurer) {
-		this.serverCodecConfigurer = serverCodecConfigurer;
-	}
+    public LoginRequestAuthenticationConverter(ServerCodecConfigurer serverCodecConfigurer) {
+        this.serverCodecConfigurer = serverCodecConfigurer;
+    }
 
-	@Override
-	public Mono<Authentication> convert(ServerWebExchange exchange) {
-		final ServerHttpRequest request = exchange.getRequest();
+    @Override
+    public Mono<Authentication> convert(ServerWebExchange exchange) {
+        final ServerHttpRequest request = exchange.getRequest();
 
-		MediaType contentType = request.getHeaders().getContentType();
+        MediaType contentType = request.getHeaders().getContentType();
 
-		if (MediaType.APPLICATION_JSON.includes(contentType)) {
-			return serverCodecConfigurer.getReaders().stream()
-				.filter(reader -> reader.canRead(this.usernamePasswordType, MediaType.APPLICATION_JSON))
-				.findFirst()
-				.orElseThrow(() -> new IllegalStateException("No JSON reader for LoginRequest"))
-				.readMono(this.usernamePasswordType, request, Collections.emptyMap())
-				.cast(LoginRequest.class)
-				.map(l -> new UsernamePasswordAuthenticationToken(l.getUsername(), l.getPassword()));
-		} else {
-			return Mono.empty();
-		}
-	}
+        if (MediaType.APPLICATION_JSON.includes(contentType)) {
+            return serverCodecConfigurer.getReaders().stream()
+                    .filter(reader -> reader.canRead(this.usernamePasswordType, MediaType.APPLICATION_JSON))
+                    .findFirst()
+                    .orElseThrow(() -> new IllegalStateException("No JSON reader for LoginRequest"))
+                    .readMono(this.usernamePasswordType, request, Collections.emptyMap())
+                    .cast(LoginRequest.class)
+                    .map(l -> new UsernamePasswordAuthenticationToken(l.getUsername(), l.getPassword()));
+        } else {
+            return Mono.empty();
+        }
+    }
 }
