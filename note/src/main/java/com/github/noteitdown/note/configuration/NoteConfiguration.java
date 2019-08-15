@@ -1,8 +1,8 @@
 package com.github.noteitdown.note.configuration;
 
-import com.github.noteitdown.note.processor.NoteProcessor;
+import com.github.noteitdown.note.validator.NoteValidator;
 import com.github.noteitdown.note.websocket.NoteWebSocketHandler;
-import com.github.noteitdown.note.websocket.event.UserNoteEvent;
+import com.github.noteitdown.note.websocket.event.WsNoteEventWrapper;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -17,14 +17,11 @@ import java.util.Map;
 @Configuration
 public class NoteConfiguration {
 
-    @Bean
-    public UnicastProcessor<UserNoteEvent> messagePublisher() {
-        return UnicastProcessor.create();
-    }
+    private final UnicastProcessor<WsNoteEventWrapper> wsNoteEventPublisher = UnicastProcessor.create();
 
     @Bean
-    public HandlerMapping handlerMapping(UnicastProcessor<UserNoteEvent> noteEventPublisher) {
-        var socketHandlerMap = Map.of("/websocket/note", new NoteWebSocketHandler(noteEventPublisher));
+    public HandlerMapping handlerMapping(NoteWebSocketHandler webSocketHandler) {
+        var socketHandlerMap = Map.of("/websocket/note", webSocketHandler);
         SimpleUrlHandlerMapping mapping = new SimpleUrlHandlerMapping();
         mapping.setUrlMap(socketHandlerMap);
         mapping.setOrder(Ordered.HIGHEST_PRECEDENCE + 1);
@@ -32,9 +29,13 @@ public class NoteConfiguration {
     }
 
     @Bean
-    public NoteProcessor noteProcessor(UnicastProcessor<UserNoteEvent> noteEventPublisher,
-                                       ApplicationEventPublisher applicationEventPublisher) {
-        return new NoteProcessor(noteEventPublisher, applicationEventPublisher);
+    public NoteWebSocketHandler getWebsocketHandler() {
+        return new NoteWebSocketHandler(wsNoteEventPublisher);
+    }
+
+    @Bean
+    public NoteValidator noteProcessor(ApplicationEventPublisher applicationEventPublisher) {
+        return new NoteValidator(wsNoteEventPublisher, applicationEventPublisher);
     }
 
     @Bean
