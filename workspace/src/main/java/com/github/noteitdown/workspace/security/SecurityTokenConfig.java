@@ -14,19 +14,19 @@ import org.springframework.security.web.server.context.NoOpServerSecurityContext
 @EnableConfigurationProperties(JwtProperties.class)
 public class SecurityTokenConfig {
 
-	@Bean
-	public SecurityWebFilterChain securityWebFilterChain(ServerHttpSecurity http, JwtProperties jwtProperties) {
-		return http
-			.csrf().disable()
-			.securityContextRepository(NoOpServerSecurityContextRepository.getInstance())
-			.exceptionHandling()
-			.and()
-			.authorizeExchange()
-			.pathMatchers("/actuator/**").permitAll()
-			.anyExchange()
-			.authenticated()
-			.and()
-			.addFilterAt(new BearerAuthenticationFilter(jwtProperties), SecurityWebFiltersOrder.AUTHENTICATION)
-			.build();
-	}
+    @Bean
+    public SecurityWebFilterChain securityWebFilterChain(ServerHttpSecurity http, JwtProperties jwtProperties) {
+        return http
+                .csrf().disable()
+                .securityContextRepository(NoOpServerSecurityContextRepository.getInstance())
+                .exceptionHandling()
+                .and()
+                .authorizeExchange()
+                .pathMatchers("/actuator/**").permitAll()
+                .anyExchange()
+                .authenticated()
+                .and()
+                .addFilterAt(new BearerAuthenticationFilter(jwtProperties), SecurityWebFiltersOrder.AUTHENTICATION)
+                .build();
+    }
 }

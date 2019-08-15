@@ -20,38 +20,38 @@ import org.springframework.security.web.server.context.NoOpServerSecurityContext
 @EnableConfigurationProperties(JwtProperties.class)
 public class SecurityTokenConfig {
 
-	@Bean
-	public SecurityWebFilterChain securityWebFilterChain(ServerHttpSecurity http,
-														 JwtProperties jwtProperties,
-														 JwtTokenProvider jwtTokenProvider,
-														 ReactiveAuthenticationManager manager,
-														 ServerCodecConfigurer serverCodecConfigurer) {
-		return http.cors()
-			.and()
-			.securityContextRepository(NoOpServerSecurityContextRepository.getInstance())
-			.csrf().disable()
-			.exceptionHandling()
-			.and()
-			.addFilterAt(new BearerAuthenticationFilter(jwtProperties), SecurityWebFiltersOrder.HTTP_BASIC)
-			.addFilterAt(new LoginWebFilter(manager,
-				serverCodecConfigurer,
-				jwtTokenProvider,
-				jwtProperties), SecurityWebFiltersOrder.AUTHENTICATION)
-			.authorizeExchange()
-			.pathMatchers("/actuator/**").permitAll()
-			.pathMatchers(HttpMethod.POST, "/login").permitAll()
-			.pathMatchers(HttpMethod.POST, "/users").permitAll()
-			.anyExchange().authenticated()
-			.and()
-			.build();
-	}
+    @Bean
+    public SecurityWebFilterChain securityWebFilterChain(ServerHttpSecurity http,
+                                                         JwtProperties jwtProperties,
+                                                         JwtTokenProvider jwtTokenProvider,
+                                                         ReactiveAuthenticationManager manager,
+                                                         ServerCodecConfigurer serverCodecConfigurer) {
+        return http.cors()
+                .and()
+                .securityContextRepository(NoOpServerSecurityContextRepository.getInstance())
+                .csrf().disable()
+                .exceptionHandling()
+                .and()
+                .addFilterAt(new BearerAuthenticationFilter(jwtProperties), SecurityWebFiltersOrder.HTTP_BASIC)
+                .addFilterAt(new LoginWebFilter(manager,
+                        serverCodecConfigurer,
+                        jwtTokenProvider,
+                        jwtProperties), SecurityWebFiltersOrder.AUTHENTICATION)
+                .authorizeExchange()
+                .pathMatchers("/actuator/**").permitAll()
+                .pathMatchers(HttpMethod.POST, "/login").permitAll()
+                .pathMatchers(HttpMethod.POST, "/users").permitAll()
+                .anyExchange().authenticated()
+                .and()
+                .build();
+    }
 
-	@Bean
-	public ReactiveAuthenticationManager authenticationManager(ReactiveUserDetailsService userDetailsService,
-															   PasswordEncoder passwordEncoder) {
-		UserDetailsRepositoryReactiveAuthenticationManager manager =
-			new UserDetailsRepositoryReactiveAuthenticationManager(userDetailsService);
-		manager.setPasswordEncoder(passwordEncoder);
-		return manager;
-	}
+    @Bean
+    public ReactiveAuthenticationManager authenticationManager(ReactiveUserDetailsService userDetailsService,
+                                                               PasswordEncoder passwordEncoder) {
+        UserDetailsRepositoryReactiveAuthenticationManager manager =
+                new UserDetailsRepositoryReactiveAuthenticationManager(userDetailsService);
+        manager.setPasswordEncoder(passwordEncoder);
+        return manager;
+    }
 }

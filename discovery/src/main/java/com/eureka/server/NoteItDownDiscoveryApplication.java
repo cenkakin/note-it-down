@@ -12,7 +12,7 @@ import org.springframework.cloud.netflix.eureka.server.EnableEurekaServer;
 @EnableEurekaServer
 public class NoteItDownDiscoveryApplication {
 
-	public static void main(String[] args) {
-		SpringApplication.run(NoteItDownDiscoveryApplication.class, args);
-	}
+    public static void main(String[] args) {
+        SpringApplication.run(NoteItDownDiscoveryApplication.class, args);
+    }
 }

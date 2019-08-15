@@ -15,42 +15,42 @@ import reactor.core.publisher.Mono;
 
 public class BasicAuthenticationSuccessHandler implements ServerAuthenticationSuccessHandler {
 
-	private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
+    private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
 
-	private final JwtTokenProvider jwtTokenProvider;
+    private final JwtTokenProvider jwtTokenProvider;
 
-	private final JwtProperties jwtProperties;
+    private final JwtProperties jwtProperties;
 
-	BasicAuthenticationSuccessHandler(JwtTokenProvider jwtTokenProvider, JwtProperties jwtProperties) {
-		this.jwtTokenProvider = jwtTokenProvider;
-		this.jwtProperties = jwtProperties;
-	}
+    BasicAuthenticationSuccessHandler(JwtTokenProvider jwtTokenProvider, JwtProperties jwtProperties) {
+        this.jwtTokenProvider = jwtTokenProvider;
+        this.jwtProperties = jwtProperties;
+    }
 
-	@Override
-	public Mono<Void> onAuthenticationSuccess(WebFilterExchange webFilterExchange, Authentication authentication) {
-		ServerHttpResponse response = webFilterExchange.getExchange().getResponse();
-		response.getHeaders().add(HttpHeaders.AUTHORIZATION, getHttpAuthHeaderValue(authentication));
-		response.setStatusCode(HttpStatus.OK);
-		return response.writeWith(authenticationBody(authentication.getPrincipal(), response.bufferFactory()));
-	}
+    @Override
+    public Mono<Void> onAuthenticationSuccess(WebFilterExchange webFilterExchange, Authentication authentication) {
+        ServerHttpResponse response = webFilterExchange.getExchange().getResponse();
+        response.getHeaders().add(HttpHeaders.AUTHORIZATION, getHttpAuthHeaderValue(authentication));
+        response.setStatusCode(HttpStatus.OK);
+        return response.writeWith(authenticationBody(authentication.getPrincipal(), response.bufferFactory()));
+    }
 
-	private String getHttpAuthHeaderValue(Authentication authentication) {
-		return String.join(" ",
-			jwtProperties.getPrefix(),
-			jwtTokenProvider.generateToken(authentication));
-	}
+    private String getHttpAuthHeaderValue(Authentication authentication) {
+        return String.join(" ",
+                jwtProperties.getPrefix(),
+                jwtTokenProvider.generateToken(authentication));
+    }
 
-	private Mono<DataBuffer> authenticationBody(Object principal, DataBufferFactory bufferFactory) {
-		return Mono.just(principal)
-			.map(this::getPrincipalAsBytes)
-			.map(bufferFactory::wrap);
-	}
+    private Mono<DataBuffer> authenticationBody(Object principal, DataBufferFactory bufferFactory) {
+        return Mono.just(principal)
+                .map(this::getPrincipalAsBytes)
+                .map(bufferFactory::wrap);
+    }
 
-	private byte[] getPrincipalAsBytes(Object principal) {
-		try {
-			return OBJECT_MAPPER.writeValueAsBytes(principal);
-		} catch (JsonProcessingException e) {
-			throw new RuntimeException("Principal couldn't be converted to bytes!");
-		}
-	}
+    private byte[] getPrincipalAsBytes(Object principal) {
+        try {
+            return OBJECT_MAPPER.writeValueAsBytes(principal);
+        } catch (JsonProcessingException e) {
+            throw new RuntimeException("Principal couldn't be converted to bytes!");
+        }
+    }
 }

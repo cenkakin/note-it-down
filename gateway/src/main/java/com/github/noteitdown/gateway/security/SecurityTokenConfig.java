@@ -36,7 +36,7 @@ public class SecurityTokenConfig {
     public SecurityWebFilterChain securityWebFilterChain(ServerHttpSecurity http, JwtProperties jwtProperties) {
         return http.cors()
                 .and()
-				.securityContextRepository(NoOpServerSecurityContextRepository.getInstance())
+                .securityContextRepository(NoOpServerSecurityContextRepository.getInstance())
                 .csrf().disable()
                 .exceptionHandling()
                 .and()
