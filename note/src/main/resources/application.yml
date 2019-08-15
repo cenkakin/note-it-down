@@ -1,6 +1,18 @@
 spring:
+  kafka:
+    bootstrap-servers: 192.168.99.100:9092
   application:
     name: note-service
+  cloud:
+    stream:
+      bindings:
+        output:
+          binder: kafka
+          destination: note
+          contentType: 'application/json'
+          group: note-group
+          producer:
+            requiredGroups: note-group
 
 server:
   port: 9300
