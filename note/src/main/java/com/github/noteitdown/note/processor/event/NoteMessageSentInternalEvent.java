@@ -1,10 +1,7 @@
-package com.github.noteitdown.note.message.event;
+package com.github.noteitdown.note.processor.event;
 
 import com.github.noteitdown.note.websocket.event.WsNoteEventWrapper;
 
-/**
- * Created by cenkakin
- */
 public class NoteMessageSentInternalEvent {
 
     private final WsNoteEventWrapper wsNoteEventWrapper;
