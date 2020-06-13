@@ -1,28 +1,33 @@
 package com.github.noteitdown.note.websocket;
 
-import com.github.noteitdown.note.message.event.NoteMessageSentInternalEvent;
 import com.github.noteitdown.note.model.User;
+import com.github.noteitdown.note.processor.NoteProcessedEventPublisher;
+import com.github.noteitdown.note.processor.event.NoteProcessedEvent;
 import com.github.noteitdown.note.websocket.event.WsNoteEvent;
 import com.github.noteitdown.note.websocket.event.WsNoteEventWrapper;
 import com.github.noteitdown.note.websocket.event.WsNoteStatusEvent;
-import org.springframework.context.event.EventListener;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.web.reactive.socket.WebSocketHandler;
 import org.springframework.web.reactive.socket.WebSocketMessage;
 import org.springframework.web.reactive.socket.WebSocketSession;
-import reactor.core.publisher.DirectProcessor;
+import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
-import reactor.core.publisher.UnicastProcessor;
 
 import static org.springframework.web.reactive.socket.WebSocketMessage.Type.TEXT;
 
+@Slf4j
 public class NoteWebSocketHandler implements WebSocketHandler {
 
-    private final DirectProcessor<NoteMessageSentInternalEvent> noteStatusEventPublisher = DirectProcessor.create();
+    private final ApplicationEventPublisher eventPublisher;
+    private final Flux<NoteProcessedEvent> senderFlux;
 
-    private final UnicastProcessor<WsNoteEventWrapper> noteEventPublisher;
-
-    public NoteWebSocketHandler(UnicastProcessor<WsNoteEventWrapper> noteEventPublisher) {
-        this.noteEventPublisher = noteEventPublisher;
+    public NoteWebSocketHandler(ApplicationEventPublisher eventPublisher, NoteProcessedEventPublisher noteProcessedEventPublisher) {
+        this.eventPublisher = eventPublisher;
+        senderFlux = Flux
+            .create(noteProcessedEventPublisher)
+            .publish()
+            .autoConnect();
     }
 
     @Override
@@ -32,29 +37,24 @@ public class NoteWebSocketHandler implements WebSocketHandler {
     }
 
     private Mono<Void> sender(WebSocketSession session, User user) {
-
-        return session.send(noteStatusEventPublisher
-                .map(NoteMessageSentInternalEvent::getWsNoteEventWrapper)
-                .filter(e -> e.getUser().equals(user))
-                .map(e -> WsNoteStatusEvent.successfulEvent(e.getWsNoteEvent()))
-                .map(WsNoteStatusEvent::toStringJson)
-                .map(session::textMessage))
-                .onErrorContinue((throwable, o) -> System.out.println(throwable));
+        return session.send(senderFlux
+            .map(NoteProcessedEvent::getNote)
+            .log()
+            .filter(e -> e.getUserId().equals(user.getId()))
+            .map(e -> WsNoteStatusEvent.successfulEvent(e.getTransactionId()))
+            .map(WsNoteStatusEvent::toStringJson)
+            .map(session::textMessage))
+            .onErrorContinue((throwable, o) -> log.error("Exception happened!", throwable));
     }
 
     private Mono<Void> receiver(WebSocketSession session, User user) {
         return session.receive()
-                .filter(m -> TEXT.equals(m.getType()))
-                .map(WebSocketMessage::getPayloadAsText)
-                .map(WsNoteEvent::fromStringJson)
-                .map(ne -> new WsNoteEventWrapper(user, ne))
-                .doOnNext(noteEventPublisher::onNext)
-                .onErrorContinue((throwable, o) -> System.out.println(throwable))
-                .then();
-    }
-
-    @EventListener
-    public void onEvent(NoteMessageSentInternalEvent event) {
-        noteStatusEventPublisher.onNext(event);
+            .filter(m -> TEXT.equals(m.getType()))
+            .map(WebSocketMessage::getPayloadAsText)
+            .map(WsNoteEvent::fromStringJson)
+            .map(ne -> new WsNoteEventWrapper(user, ne))
+            .doOnNext(eventPublisher::publishEvent)
+            .onErrorContinue((throwable, o) -> log.error("Exception happened!", throwable))
+            .then();
     }
 }

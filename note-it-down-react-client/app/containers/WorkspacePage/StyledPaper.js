@@ -8,6 +8,7 @@ const StyledPaper = styled(Paper)`
   padding: ${props => props.theme.spacing(3, 7)};
   display: 'flex';
   flex-direction: 'column';
+  line-height: 1.9;
 `;
 
 export default StyledPaper;

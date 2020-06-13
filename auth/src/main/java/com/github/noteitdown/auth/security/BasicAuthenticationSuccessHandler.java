@@ -36,14 +36,14 @@ public class BasicAuthenticationSuccessHandler implements ServerAuthenticationSu
 
     private String getHttpAuthHeaderValue(Authentication authentication) {
         return String.join(" ",
-                jwtProperties.getPrefix(),
-                jwtTokenProvider.generateToken(authentication));
+            jwtProperties.getPrefix(),
+            jwtTokenProvider.generateToken(authentication));
     }
 
     private Mono<DataBuffer> authenticationBody(Object principal, DataBufferFactory bufferFactory) {
         return Mono.just(principal)
-                .map(this::getPrincipalAsBytes)
-                .map(bufferFactory::wrap);
+            .map(this::getPrincipalAsBytes)
+            .map(bufferFactory::wrap);
     }
 
     private byte[] getPrincipalAsBytes(Object principal) {

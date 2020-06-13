@@ -35,19 +35,19 @@ public class SecurityTokenConfig {
     @Bean
     public SecurityWebFilterChain securityWebFilterChain(ServerHttpSecurity http, JwtProperties jwtProperties) {
         return http.cors()
-                .and()
-                .securityContextRepository(NoOpServerSecurityContextRepository.getInstance())
-                .csrf().disable()
-                .exceptionHandling()
-                .and()
-                .authorizeExchange()
-                .pathMatchers("/actuator/**").permitAll()
-                .pathMatchers(HttpMethod.POST, "/auth/login").permitAll()
-                .pathMatchers(HttpMethod.POST, "/auth/users").permitAll()
-                .pathMatchers(HttpMethod.GET, "/note/websocket/note").permitAll()
-                .anyExchange().authenticated()
-                .and()
-                .addFilterAt(new BearerAuthenticationFilter(jwtProperties), SecurityWebFiltersOrder.AUTHENTICATION)
-                .build();
+            .and()
+            .securityContextRepository(NoOpServerSecurityContextRepository.getInstance())
+            .csrf().disable()
+            .exceptionHandling()
+            .and()
+            .authorizeExchange()
+            .pathMatchers("/actuator/**").permitAll()
+            .pathMatchers(HttpMethod.POST, "/auth/login").permitAll()
+            .pathMatchers(HttpMethod.POST, "/auth/users").permitAll()
+            .pathMatchers(HttpMethod.GET, "/note/websocket/note").permitAll()
+            .anyExchange().authenticated()
+            .and()
+            .addFilterAt(new BearerAuthenticationFilter(jwtProperties), SecurityWebFiltersOrder.AUTHENTICATION)
+            .build();
     }
 }

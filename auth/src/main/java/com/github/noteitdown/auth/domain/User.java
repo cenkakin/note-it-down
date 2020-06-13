@@ -4,6 +4,12 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.github.noteitdown.auth.request.SignUpRequest;
 import com.github.noteitdown.common.security.Identity;
 import com.github.noteitdown.common.security.UserRole;
+import java.time.Instant;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Set;
+import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.Size;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.annotation.LastModifiedDate;
@@ -11,13 +17,6 @@ import org.springframework.data.annotation.Version;
 import org.springframework.data.mongodb.core.index.Indexed;
 import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.security.core.GrantedAuthority;
-
-import javax.validation.constraints.NotBlank;
-import javax.validation.constraints.Size;
-import java.time.Instant;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Set;
 
 /**
  * Created by cenkakin
@@ -163,15 +162,15 @@ public class User implements Identity {
     @Override
     public String toString() {
         return "User{" +
-                "id='" + id + '\'' +
-                ", email='" + email + '\'' +
-                ", password='" + password + '\'' +
-                ", active=" + active +
-                ", roles=" + roles +
-                ", createdAt=" + createdAt +
-                ", lastModifiedAt=" + lastModifiedAt +
-                ", version=" + version +
-                '}';
+            "id='" + id + '\'' +
+            ", email='" + email + '\'' +
+            ", password='" + password + '\'' +
+            ", active=" + active +
+            ", roles=" + roles +
+            ", createdAt=" + createdAt +
+            ", lastModifiedAt=" + lastModifiedAt +
+            ", version=" + version +
+            '}';
     }
 
     public static User fromSignUpRequest(SignUpRequest request) {

@@ -29,12 +29,6 @@ spring:
             - Path=/auth/**
           filters:
             - RewritePath=/auth/(?<path>.*), /$\{path}
-        - id: workspace-service
-          uri: lb://workspace-service
-          predicates:
-            - Path=/workspace/**
-          filters:
-            - RewritePath=/workspace/(?<path>.*), /$\{path}
 
 ribbon:
   ConnectTimeout: 60000

@@ -1,8 +1,12 @@
 package com.github.noteitdown.note.configuration;
 
-import com.github.noteitdown.note.validator.NoteValidator;
+import com.github.noteitdown.note.processor.NoteProcessedEventPublisher;
+import com.github.noteitdown.note.processor.NoteProcessor;
+import com.github.noteitdown.note.repository.NoteRepository;
 import com.github.noteitdown.note.websocket.NoteWebSocketHandler;
-import com.github.noteitdown.note.websocket.event.WsNoteEventWrapper;
+import java.util.Map;
+import java.util.concurrent.Executor;
+import java.util.concurrent.Executors;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -10,14 +14,19 @@ import org.springframework.core.Ordered;
 import org.springframework.web.reactive.HandlerMapping;
 import org.springframework.web.reactive.handler.SimpleUrlHandlerMapping;
 import org.springframework.web.reactive.socket.server.support.WebSocketHandlerAdapter;
-import reactor.core.publisher.UnicastProcessor;
-
-import java.util.Map;
 
 @Configuration
 public class NoteConfiguration {
 
-    private final UnicastProcessor<WsNoteEventWrapper> wsNoteEventPublisher = UnicastProcessor.create();
+    @Bean
+    public Executor executor() {
+        return Executors.newSingleThreadExecutor();
+    }
+
+    @Bean
+    public NoteWebSocketHandler webSocketHandler(ApplicationEventPublisher eventPublisher, NoteProcessedEventPublisher noteProcessedEventPublisher) {
+        return new NoteWebSocketHandler(eventPublisher, noteProcessedEventPublisher);
+    }
 
     @Bean
     public HandlerMapping handlerMapping(NoteWebSocketHandler webSocketHandler) {
@@ -29,17 +38,17 @@ public class NoteConfiguration {
     }
 
     @Bean
-    public NoteWebSocketHandler getWebsocketHandler() {
-        return new NoteWebSocketHandler(wsNoteEventPublisher);
-    }
-
-    @Bean
-    public NoteValidator noteProcessor(ApplicationEventPublisher applicationEventPublisher) {
-        return new NoteValidator(wsNoteEventPublisher, applicationEventPublisher);
+    public NoteProcessedEventPublisher noteProcessedEventPublisher(Executor executor) {
+        return new NoteProcessedEventPublisher(executor);
     }
 
     @Bean
     public WebSocketHandlerAdapter handlerAdapter() {
         return new WebSocketHandlerAdapter();
+    }
+
+    @Bean
+    public NoteProcessor noteProcessor(NoteRepository noteRepository, ApplicationEventPublisher applicationEventPublisher) {
+        return new NoteProcessor(applicationEventPublisher, noteRepository);
     }
 }
