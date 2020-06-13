@@ -1,6 +1,5 @@
 package com.github.noteitdown.auth.exception;
 
-
 public class EmailAlreadyExistsException extends RuntimeException {
 
     public EmailAlreadyExistsException() {

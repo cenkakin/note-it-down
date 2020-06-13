@@ -2,52 +2,42 @@ package com.github.noteitdown.note.websocket.event;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import lombok.Getter;
 
 /**
  * Created by cenkakin
  */
+@Getter
 public class WsNoteStatusEvent {
 
     private final static ObjectMapper OBJECT_MAPPER = new ObjectMapper();
 
-    private final WsNoteEvent wsNoteEvent;
+    private final Long transactionId;
 
     private final NoteStatus noteStatus;
 
     private final String errorMessage;
 
-    private WsNoteStatusEvent(WsNoteEvent wsNoteEvent, NoteStatus noteStatus) {
-        this(wsNoteEvent, noteStatus, null);
+    private WsNoteStatusEvent(Long transactionId, NoteStatus noteStatus) {
+        this(transactionId, noteStatus, null);
     }
 
-    private WsNoteStatusEvent(WsNoteEvent wsNoteEvent, NoteStatus noteStatus, String errorMessage) {
-        this.wsNoteEvent = wsNoteEvent;
+    private WsNoteStatusEvent(Long transactionId, NoteStatus noteStatus, String errorMessage) {
+        this.transactionId = transactionId;
         this.noteStatus = noteStatus;
         this.errorMessage = errorMessage;
-    }
-
-    public WsNoteEvent getWsNoteEvent() {
-        return wsNoteEvent;
-    }
-
-    public NoteStatus getNoteStatus() {
-        return noteStatus;
-    }
-
-    public String getErrorMessage() {
-        return errorMessage;
     }
 
     public enum NoteStatus {
         PROCESSED, ERROR
     }
 
-    public static WsNoteStatusEvent successfulEvent(WsNoteEvent event) {
-        return new WsNoteStatusEvent(event, NoteStatus.PROCESSED);
+    public static WsNoteStatusEvent successfulEvent(Long transactionId) {
+        return new WsNoteStatusEvent(transactionId, NoteStatus.PROCESSED);
     }
 
-    public static WsNoteStatusEvent unsuccessfulEvent(WsNoteEvent event, String errorMessage) {
-        return new WsNoteStatusEvent(event, NoteStatus.ERROR, errorMessage);
+    public static WsNoteStatusEvent unsuccessfulEvent(Long transactionId, String errorMessage) {
+        return new WsNoteStatusEvent(transactionId, NoteStatus.ERROR, errorMessage);
     }
 
     public String toStringJson() {

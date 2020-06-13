@@ -1,50 +1,37 @@
-import React, { memo, useEffect, useState } from 'react';
+import React, { memo, useEffect } from 'react';
 import PropTypes from 'prop-types';
 import { Helmet } from 'react-helmet';
 import { connect } from 'react-redux';
 import { compose } from 'redux';
 import { createStructuredSelector } from 'reselect';
+import 'draft-js/dist/Draft.css';
 
 import { useInjectReducer } from 'utils/injectReducer';
 import { useInjectSaga } from 'utils/injectSaga';
-import TextField from '@material-ui/core/TextField';
+import CustomEditor from '../../components/Editor/editor';
+
 import reducer from './reducer';
 import saga from './saga';
 import { loadWorkspace } from './actions';
 import { makeSelectWorkspace } from './selectors';
-import StyledPaper from './StyledPaper';
-import { getUserWrapper } from '../../utils/storage';
+import createWs from './websocketHandler';
 
 const key = 'workspace';
 
-const user = getUserWrapper();
+const workspaceWsSubscriber = {
+  notifyMessage: () => {},
+};
 
-const ws = new WebSocket(
-  `ws://localhost:8762/note/websocket/note?token=${user.token}&subject=${
-    user.user.email
-  }&id=${user.user.id}`,
-);
+const webSocket = createWs([workspaceWsSubscriber]);
+
+const createWSEvent = content => {
+  const transactionId = new Date().getTime();
+  return JSON.stringify({ transactionId, content });
+};
 
 export function WorkspacePage({ onLoadWorkspace, workspace }) {
-  const [foo, setData] = useState([]);
-  ws.onmessage = function(event) {
-    console.log(event.data);
-  };
-
-  ws.onclose = console.warn;
-
-  ws.onerror = console.error;
-
-  const event = {
-    transactionId: 123,
-    operations: [],
-  };
-
-  ws.onopen = () => ws.send(JSON.stringify(event));
-
   useInjectReducer({ key, reducer });
   useInjectSaga({ key, saga });
-
   useEffect(() => {
     onLoadWorkspace();
   }, []);
@@ -60,15 +47,12 @@ export function WorkspacePage({ onLoadWorkspace, workspace }) {
       </Helmet>
 
       <div>
-        <StyledPaper elevator={15}>
-          <TextField
-            placeholder="Enter your first notes..."
-            fullWidth
-            defaultValue={workspace}
-            InputProps={{ disableUnderline: true, style: { lineHeight: 2.4 } }}
-            multiline
-          />
-        </StyledPaper>
+        <CustomEditor
+          initialContent=""
+          onEditorChange={content => {
+            webSocket.send(createWSEvent(content));
+          }}
+        />
       </div>
     </article>
   );
@@ -76,7 +60,7 @@ export function WorkspacePage({ onLoadWorkspace, workspace }) {
 
 WorkspacePage.propTypes = {
   onLoadWorkspace: PropTypes.func,
-  workspace: PropTypes.string,
+  workspace: PropTypes.object,
 };
 
 const mapStateToProps = createStructuredSelector({

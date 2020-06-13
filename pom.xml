@@ -7,7 +7,7 @@
     <parent>
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-starter-parent</artifactId>
-        <version>2.1.6.RELEASE</version>
+        <version>2.2.7.RELEASE</version>
         <relativePath/> <!-- lookup parent from repository -->
     </parent>
 
@@ -18,12 +18,12 @@
     <packaging>pom</packaging>
 
     <properties>
-        <java.version>12</java.version>
-        <spring-cloud.version>Greenwich.SR1</spring-cloud.version>
+        <java.version>13</java.version>
+        <spring-cloud.version>Hoxton.SR5</spring-cloud.version>
         <jaxb-runtime.version>2.4.0-b180830.0438</jaxb-runtime.version>
         <note-it-down-common.version>0.0.1-SNAPSHOT</note-it-down-common.version>
         <jjwt.version>0.9.1</jjwt.version>
-        <spring-boot-admin-starter-server.version>2.1.6</spring-boot-admin-starter-server.version>
+        <spring-boot-admin-starter-server.version>2.2.3</spring-boot-admin-starter-server.version>
     </properties>
 
     <dependencyManagement>
@@ -63,7 +63,6 @@
         <module>gateway</module>
         <module>auth</module>
         <module>discovery</module>
-        <module>workspace</module>
         <module>note</module>
     </modules>
 </project>

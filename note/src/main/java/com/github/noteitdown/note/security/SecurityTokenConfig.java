@@ -17,16 +17,16 @@ public class SecurityTokenConfig {
     @Bean
     public SecurityWebFilterChain securityWebFilterChain(ServerHttpSecurity http, JwtProperties jwtProperties) {
         return http.cors()
-                .and()
-                .csrf().disable()
-                .exceptionHandling()
-                .and()
-                .authorizeExchange()
-                .pathMatchers("/actuator/**").permitAll()
-                .anyExchange().authenticated()
-                .and()
-                .addFilterAt(new QueryParamAuthenticationFilter(jwtProperties), SecurityWebFiltersOrder.AUTHENTICATION)
-                .addFilterAt(new BearerAuthenticationFilter(jwtProperties), SecurityWebFiltersOrder.AUTHENTICATION)
-                .build();
+            .and()
+            .csrf().disable()
+            .exceptionHandling()
+            .and()
+            .authorizeExchange()
+            .pathMatchers("/actuator/**").permitAll()
+            .anyExchange().authenticated()
+            .and()
+            .addFilterAt(new QueryParamAuthenticationFilter(jwtProperties), SecurityWebFiltersOrder.AUTHENTICATION)
+            .addFilterAt(new BearerAuthenticationFilter(jwtProperties), SecurityWebFiltersOrder.AUTHENTICATION)
+            .build();
     }
 }

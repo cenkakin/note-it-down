@@ -5,10 +5,11 @@ import { call } from 'redux-saga/effects';
 
 import messages from './messages';
 import { getUserWrapper } from './storage';
+import { BASE_URL } from '../config';
 
 const create = () => {
   const apiSauce = apisauce.create({
-    baseURL: 'http://localhost:8762/',
+    baseURL: BASE_URL,
 		headers: {
     	'Access-Control-Allow-Origin': '*',
 		}

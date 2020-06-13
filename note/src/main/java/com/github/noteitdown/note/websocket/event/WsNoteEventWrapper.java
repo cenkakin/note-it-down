@@ -24,8 +24,8 @@ public class WsNoteEventWrapper {
     @Override
     public String toString() {
         return "WsNoteEventWrapper{" +
-                "user=" + user +
-                ", wsNoteEvent=" + wsNoteEvent +
-                '}';
+            "user=" + user +
+            ", wsNoteEvent=" + wsNoteEvent +
+            '}';
     }
 }
