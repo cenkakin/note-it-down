@@ -1,11 +1,17 @@
-import { ContentState, Editor, EditorState, RichUtils } from 'draft-js';
+import {
+  convertToRaw,
+  convertFromRaw,
+  Editor,
+  EditorState,
+  RichUtils,
+} from 'draft-js';
 import React, { useEffect } from 'react';
 import PropTypes from 'prop-types';
 import StyledPaper from '../../containers/WorkspacePage/StyledPaper';
 
-export default function CustomEditor({ initialContent = '', onEditorChange }) {
+export default function CustomEditor({ content, onEditorChange }) {
   const [editorState, setEditorState] = React.useState(
-    EditorState.createWithContent(ContentState.createFromText(initialContent)),
+    EditorState.createEmpty(),
   );
   const editor = React.useRef(null);
   const onChange = st => {
@@ -31,12 +37,18 @@ export default function CustomEditor({ initialContent = '', onEditorChange }) {
 
   useEffect(() => {
     const timer = setTimeout(() => {
-      const blocks = editorState.getCurrentContent().getBlocksAsArray();
-      onEditorChange(blocks);
+      onEditorChange(convertToRaw(editorState.getCurrentContent()), null, 2);
     }, 2000);
 
     return () => clearTimeout(timer);
   }, [editorState]);
+
+  useEffect(() => {
+    if (content) {
+      const st = EditorState.createWithContent(convertFromRaw(content));
+      onChange(st);
+    }
+  }, [content]);
 
   return (
     <div>
@@ -55,6 +67,6 @@ export default function CustomEditor({ initialContent = '', onEditorChange }) {
 }
 
 CustomEditor.propTypes = {
-  initialContent: PropTypes.string,
+  content: PropTypes.object,
   onEditorChange: PropTypes.func,
 };

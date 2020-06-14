@@ -4,11 +4,11 @@ import { doGetRequest } from '../../utils/request';
 import { workspaceLoaded } from './actions';
 
 export function* getWorkspace() {
-  const res = yield doGetRequest('/workspace/');
+  const res = yield doGetRequest('/note/workspace');
   if (res.ok) {
     yield put(workspaceLoaded(res.data));
   } else {
-    yield put(workspaceLoaded(res.data));
+    yield put(workspaceLoaded({}));
   }
 }
 

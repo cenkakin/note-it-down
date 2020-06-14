@@ -1,11 +1,11 @@
-package com.github.noteitdown.note.websocket;
+package com.github.noteitdown.note.application.websocket;
 
-import com.github.noteitdown.note.model.User;
-import com.github.noteitdown.note.processor.NoteProcessedEventPublisher;
-import com.github.noteitdown.note.processor.event.NoteProcessedEvent;
-import com.github.noteitdown.note.websocket.event.WsNoteEvent;
-import com.github.noteitdown.note.websocket.event.WsNoteEventWrapper;
-import com.github.noteitdown.note.websocket.event.WsNoteStatusEvent;
+import com.github.noteitdown.note.application.dto.IncomingNoteRequest;
+import com.github.noteitdown.note.application.dto.NoteStatusDto;
+import com.github.noteitdown.note.domain.note.IncomingNote;
+import com.github.noteitdown.note.domain.note.NoteProcessedEventPublisher;
+import com.github.noteitdown.note.domain.note.event.NoteProcessedEvent;
+import com.github.noteitdown.note.domain.user.User;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.web.reactive.socket.WebSocketHandler;
@@ -38,11 +38,16 @@ public class NoteWebSocketHandler implements WebSocketHandler {
 
     private Mono<Void> sender(WebSocketSession session, User user) {
         return session.send(senderFlux
-            .map(NoteProcessedEvent::getNote)
-            .log()
             .filter(e -> e.getUserId().equals(user.getId()))
-            .map(e -> WsNoteStatusEvent.successfulEvent(e.getTransactionId()))
-            .map(WsNoteStatusEvent::toStringJson)
+            .log()
+            .map(e -> {
+                if (e.isSuccessful()) {
+                    return NoteStatusDto.successfulEvent(e.getTransactionId());
+                } else {
+                    return NoteStatusDto.unsuccessfulEvent(e.getTransactionId(), e.getErrorMessage());
+                }
+            })
+            .map(NoteStatusDto::toStringJson)
             .map(session::textMessage))
             .onErrorContinue((throwable, o) -> log.error("Exception happened!", throwable));
     }
@@ -51,8 +56,12 @@ public class NoteWebSocketHandler implements WebSocketHandler {
         return session.receive()
             .filter(m -> TEXT.equals(m.getType()))
             .map(WebSocketMessage::getPayloadAsText)
-            .map(WsNoteEvent::fromStringJson)
-            .map(ne -> new WsNoteEventWrapper(user, ne))
+            .map(IncomingNoteRequest::fromStringJson)
+            .map(ne -> IncomingNote.builder()
+                .content(ne.getContent())
+                .transactionId(ne.getTransactionId())
+                .userId(user.getId())
+                .build())
             .doOnNext(eventPublisher::publishEvent)
             .onErrorContinue((throwable, o) -> log.error("Exception happened!", throwable))
             .then();

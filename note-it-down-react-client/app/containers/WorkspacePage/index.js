@@ -30,11 +30,16 @@ const createWSEvent = content => {
 };
 
 export function WorkspacePage({ onLoadWorkspace, workspace }) {
+  const [initialized, setInitialized] = React.useState(false);
   useInjectReducer({ key, reducer });
   useInjectSaga({ key, saga });
   useEffect(() => {
     onLoadWorkspace();
   }, []);
+
+  useEffect(() => {
+    setInitialized(true);
+  }, [workspace]);
 
   return (
     <article>
@@ -46,21 +51,23 @@ export function WorkspacePage({ onLoadWorkspace, workspace }) {
         />
       </Helmet>
 
-      <div>
-        <CustomEditor
-          initialContent=""
-          onEditorChange={content => {
-            webSocket.send(createWSEvent(content));
-          }}
-        />
-      </div>
+      {initialized && (
+        <div>
+          <CustomEditor
+            content={workspace.content}
+            onEditorChange={content => {
+              webSocket.send(createWSEvent(content));
+            }}
+          />
+        </div>
+      )}
     </article>
   );
 }
 
 WorkspacePage.propTypes = {
   onLoadWorkspace: PropTypes.func,
-  workspace: PropTypes.object,
+  workspace: PropTypes.any,
 };
 
 const mapStateToProps = createStructuredSelector({

@@ -23,6 +23,12 @@ spring:
             - Path=/note/websocket/**
           filters:
             - RewritePath=/note/(?<path>.*), /$\{path}
+        - id: note-service
+          uri: lb://note-service
+          predicates:
+            - Path=/note/workspace/**
+          filters:
+            - RewritePath=/note/(?<path>.*), /$\{path}
         - id: auth-service
           uri: lb://auth-service
           predicates:

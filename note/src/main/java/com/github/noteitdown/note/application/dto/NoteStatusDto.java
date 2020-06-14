@@ -1,4 +1,4 @@
-package com.github.noteitdown.note.websocket.event;
+package com.github.noteitdown.note.application.dto;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -8,7 +8,7 @@ import lombok.Getter;
  * Created by cenkakin
  */
 @Getter
-public class WsNoteStatusEvent {
+public class NoteStatusDto {
 
     private final static ObjectMapper OBJECT_MAPPER = new ObjectMapper();
 
@@ -18,11 +18,11 @@ public class WsNoteStatusEvent {
 
     private final String errorMessage;
 
-    private WsNoteStatusEvent(Long transactionId, NoteStatus noteStatus) {
+    private NoteStatusDto(Long transactionId, NoteStatus noteStatus) {
         this(transactionId, noteStatus, null);
     }
 
-    private WsNoteStatusEvent(Long transactionId, NoteStatus noteStatus, String errorMessage) {
+    private NoteStatusDto(Long transactionId, NoteStatus noteStatus, String errorMessage) {
         this.transactionId = transactionId;
         this.noteStatus = noteStatus;
         this.errorMessage = errorMessage;
@@ -32,12 +32,12 @@ public class WsNoteStatusEvent {
         PROCESSED, ERROR
     }
 
-    public static WsNoteStatusEvent successfulEvent(Long transactionId) {
-        return new WsNoteStatusEvent(transactionId, NoteStatus.PROCESSED);
+    public static NoteStatusDto successfulEvent(Long transactionId) {
+        return new NoteStatusDto(transactionId, NoteStatus.PROCESSED);
     }
 
-    public static WsNoteStatusEvent unsuccessfulEvent(Long transactionId, String errorMessage) {
-        return new WsNoteStatusEvent(transactionId, NoteStatus.ERROR, errorMessage);
+    public static NoteStatusDto unsuccessfulEvent(Long transactionId, String errorMessage) {
+        return new NoteStatusDto(transactionId, NoteStatus.ERROR, errorMessage);
     }
 
     public String toStringJson() {

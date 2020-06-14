@@ -1,9 +1,10 @@
 package com.github.noteitdown.note.configuration;
 
-import com.github.noteitdown.note.processor.NoteProcessedEventPublisher;
-import com.github.noteitdown.note.processor.NoteProcessor;
-import com.github.noteitdown.note.repository.NoteRepository;
-import com.github.noteitdown.note.websocket.NoteWebSocketHandler;
+import com.github.noteitdown.note.application.websocket.NoteWebSocketHandler;
+import com.github.noteitdown.note.domain.note.IncomingNoteProcessor;
+import com.github.noteitdown.note.domain.note.NoteProcessedEventPublisher;
+import com.github.noteitdown.note.domain.note.repository.NoteRepository;
+import com.github.noteitdown.note.domain.note.service.NoteService;
 import java.util.Map;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
@@ -48,7 +49,12 @@ public class NoteConfiguration {
     }
 
     @Bean
-    public NoteProcessor noteProcessor(NoteRepository noteRepository, ApplicationEventPublisher applicationEventPublisher) {
-        return new NoteProcessor(applicationEventPublisher, noteRepository);
+    public NoteService noteService(NoteRepository noteRepository) {
+        return new NoteService(noteRepository);
+    }
+
+    @Bean
+    public IncomingNoteProcessor noteProcessor(ApplicationEventPublisher applicationEventPublisher, NoteService noteService) {
+        return new IncomingNoteProcessor(applicationEventPublisher, noteService);
     }
 }

@@ -11,6 +11,7 @@ import { connect } from 'react-redux';
 import { compose } from 'redux';
 import { api } from '../../utils/request';
 import { logOut } from '../../containers/App/actions';
+import { getUserWrapper } from '../../utils/storage';
 
 const StyledContainer = styled.div`
   flex-grow: 1;
@@ -23,12 +24,21 @@ const StyledTitle = styled(Typography)`
   }
 `;
 
+const userWrapper = getUserWrapper();
+
 export function MenuAppBar({ title, onLogout }) {
   return (
     <StyledContainer>
       <AppBar position="static" color="secondary">
         <Toolbar>
           <StyledTitle variant="h6">{title || 'Home'}</StyledTitle>
+          <div>
+            {userWrapper && userWrapper.user && userWrapper.user.email && (
+              <StyledTitle variant="subtitle1">
+                {userWrapper.user.email}
+              </StyledTitle>
+            )}
+          </div>
           <div>
             <IconButton aria-label="log-out" onClick={onLogout} color="inherit">
               <ExitIcon />

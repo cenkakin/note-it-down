@@ -1,9 +1,8 @@
 import React, { memo } from 'react';
 import { Helmet } from 'react-helmet';
-import { Route, Switch } from 'react-router-dom';
+import { Redirect, Route, Switch } from 'react-router-dom';
 
 import LoginPage from 'containers/LoginPage/Loadable';
-import NotFoundPage from 'containers/NotFoundPage/Loadable';
 import { SnackbarProvider } from 'notistack';
 import { createStructuredSelector } from 'reselect';
 import { compose } from 'redux';
@@ -47,7 +46,7 @@ export function App({ loggedIn }) {
             path="/sign-up"
             component={SignUpPage}
           />
-          <Route path="" component={NotFoundPage} />
+          <Redirect to={loggedIn ? '/workspace' : 'login'} />
         </Switch>
       </div>
     </SnackbarProvider>

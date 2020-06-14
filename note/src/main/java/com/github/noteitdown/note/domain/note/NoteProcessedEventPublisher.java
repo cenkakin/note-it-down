@@ -1,6 +1,6 @@
-package com.github.noteitdown.note.processor;
+package com.github.noteitdown.note.domain.note;
 
-import com.github.noteitdown.note.processor.event.NoteProcessedEvent;
+import com.github.noteitdown.note.domain.note.event.NoteProcessedEvent;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.Executor;
 import java.util.concurrent.LinkedBlockingQueue;

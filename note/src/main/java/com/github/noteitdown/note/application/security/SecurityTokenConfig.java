@@ -1,4 +1,4 @@
-package com.github.noteitdown.note.security;
+package com.github.noteitdown.note.application.security;
 
 import com.github.noteitdown.common.security.BearerAuthenticationFilter;
 import com.github.noteitdown.common.security.JwtProperties;

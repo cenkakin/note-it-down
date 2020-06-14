@@ -1,4 +1,4 @@
-package com.github.noteitdown.note.websocket.event;
+package com.github.noteitdown.note.application.dto;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.io.IOException;
@@ -10,7 +10,7 @@ import lombok.Value;
 @Value
 @NoArgsConstructor(force = true, access = AccessLevel.PRIVATE)
 @AllArgsConstructor
-public class WsNoteEvent {
+public class IncomingNoteRequest {
 
     private final static ObjectMapper OBJECT_MAPPER = new ObjectMapper();
 
@@ -86,9 +86,9 @@ public class WsNoteEvent {
     //    }
     //}
 
-    public static WsNoteEvent fromStringJson(String message) {
+    public static IncomingNoteRequest fromStringJson(String message) {
         try {
-            return OBJECT_MAPPER.readValue(message, WsNoteEvent.class);
+            return OBJECT_MAPPER.readValue(message, IncomingNoteRequest.class);
         } catch (IOException e) {
             throw new RuntimeException("Invalid JSON:" + message, e);
         }

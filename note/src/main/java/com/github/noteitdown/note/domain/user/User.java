@@ -1,4 +1,4 @@
-package com.github.noteitdown.note.model;
+package com.github.noteitdown.note.domain.user;
 
 import java.net.URI;
 import lombok.Value;

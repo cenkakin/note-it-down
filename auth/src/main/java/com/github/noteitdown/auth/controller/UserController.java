@@ -1,7 +1,7 @@
 package com.github.noteitdown.auth.controller;
 
 import com.github.noteitdown.auth.domain.User;
-import com.github.noteitdown.auth.exception.BadRequestException;
+import com.github.noteitdown.common.exception.BadRequestException;
 import com.github.noteitdown.auth.exception.EmailAlreadyExistsException;
 import com.github.noteitdown.auth.request.SignUpRequest;
 import com.github.noteitdown.auth.service.UserService;

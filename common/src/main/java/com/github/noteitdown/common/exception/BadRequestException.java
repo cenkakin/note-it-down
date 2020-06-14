@@ -1,4 +1,4 @@
-package com.github.noteitdown.auth.exception;
+package com.github.noteitdown.common.exception;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.web.server.ResponseStatusException;
