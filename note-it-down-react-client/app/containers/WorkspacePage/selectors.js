@@ -13,4 +13,10 @@ const makeSelectWorkspace = () =>
     workspaceState => workspaceState.workspace,
   );
 
-export { selectWorkspace, makeSelectWorkspace };
+const makeSelectWorkspaceLoaded = () =>
+  createSelector(
+    selectWorkspace,
+    workspaceState => workspaceState.workspaceLoaded,
+  );
+
+export { selectWorkspace, makeSelectWorkspace, makeSelectWorkspaceLoaded };

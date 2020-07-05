@@ -1,11 +1,5 @@
 import produce from 'immer';
-import {
-  LOAD_REPOS,
-  LOAD_REPOS_ERROR,
-  LOAD_REPOS_SUCCESS,
-  LOGGED_IN,
-  LOGGED_OUT,
-} from './constants';
+import { LOGGED_IN, LOGGED_OUT } from './constants';
 import { getUserWrapper } from '../../utils/storage';
 
 // The initial state of the App
@@ -33,22 +27,6 @@ const appReducer = (state = initialState, action) =>
       case LOGGED_OUT:
         draft.loggedIn = false;
         draft.userWrapper = {};
-        break;
-      case LOAD_REPOS:
-        draft.loading = true;
-        draft.error = false;
-        draft.userData.repositories = false;
-        break;
-
-      case LOAD_REPOS_SUCCESS:
-        draft.userData.repositories = action.repos;
-        draft.loading = false;
-        draft.currentUser = action.username;
-        break;
-
-      case LOAD_REPOS_ERROR:
-        draft.error = action.error;
-        draft.loading = false;
         break;
     }
   });

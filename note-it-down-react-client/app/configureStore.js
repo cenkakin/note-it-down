@@ -44,7 +44,6 @@ export default function configureStore(initialState = {}, history) {
     //   };
     /* eslint-enable */
   }
-
   const sagaMiddleware = createSagaMiddleware(reduxSagaMonitorOptions);
 
   // Create the store with two middlewares
